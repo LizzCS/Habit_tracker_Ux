@@ -11,9 +11,8 @@ personales.
 
 ## Tecnologías Utilizadas
 
-- **Base de datos:** 
-- **Gestión de BD:** 
-- **Lenguage de Programacion:**
+- **Base de datos:** MondoDB 
+- **Lenguage de Programacion:** JavaScript
 - **Frontend:** Web
 
 ---
