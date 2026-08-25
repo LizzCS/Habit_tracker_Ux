@@ -21,6 +21,24 @@ body {
   width: 150px !important;
 }
 
+.logOutButton {
+  border-color: #c6faf6 !important;
+  color: #ffffff !important;
+  margin-top: 15px !important;
+  margin-left: 24px !important;
+  margin-right: 24px !important;
+  width: 150px !important;
+}
+
+.dashboardButton {
+  border-color: #c6faf6 !important;
+  color: #ffffff !important;
+  margin: 10px !important;
+  margin-left: 24px !important;
+  margin-right: 24px !important;
+  width: 150px !important;
+}
+
 .notWantButton {
   color: #000000 !important;
   border-color: #1b8585 !important;
@@ -84,8 +102,17 @@ button:hover {
   color: #000000;
 }
 
+.logOutButton:hover {
+  background: #28d9d9;
+  color: #000000;
+}
+.dashboardButton:hover {
+  background: #28d9d9;
+  color: #000000;
+}
+
 .menu {
   font-size: 110px;
   margin-bottom: 16px;
-  color: #1b8585;
+  color: #28d9d9;
 }

@@ -26,7 +26,7 @@ export default function register() {
       >
         <Box sx={{ width: "100%", maxWidth: "400px" }}>
           <h1 id="logintitle" className="logintitle">
-            <strong>SIGN IN</strong>
+            <strong>SIGN UP</strong>
           </h1>
 
           <hr color="#000000" className="my-4" />
