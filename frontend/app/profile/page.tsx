@@ -1,3 +1,5 @@
+"use client";
+
 export default function profile() {
   return (
     <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
