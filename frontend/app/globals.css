@@ -11,7 +11,7 @@ body {
   margin: 0;
   background: #c6faf6;
   color: #000000;
-  font-family: var(--font-kameron), serif;
+  font-family: Arial, Helvetica, sans-serif;
 }
 
 .wantButton {
@@ -92,13 +92,17 @@ button {
   border: 2px solid #1b8585;
   padding: 12px 24px;
   border-radius: 8px;
-  font-family: inherit;
   font-size: 16px;
   cursor: pointer;
 }
 
 button:hover {
-  background: #1b8585;
+  background: #28d9d9;
+  color: #000000;
+}
+
+.wantButton:hover {
+  background: #28d9d9 !important;
   color: #000000;
 }
 

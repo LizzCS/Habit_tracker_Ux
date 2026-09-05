@@ -4,40 +4,49 @@
 // Get a free hosted Postgres database in seconds: `npx create-db`
 
 generator client {
-  provider = "prisma-client"
-  output   = "../src/generated/prisma"
+  provider = "prisma-client-js"
 }
 
 datasource db {
   provider = "mongodb"
 }
 
+model User {
+  id            String   @id @default(uuid()) @map("_id")
+  name          String
+  email         String   @unique
+  password      String
+  salt          String
+  createdAt     DateTime @default(now())
+
+  habits        Habit[]
+  records       Record[]
+}
 
 model Habit {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  desc String?
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  UserHabits UserHabits[]
+  id          String   @id @default(uuid()) @map("_id")
+  name        String
+  description String?
+  category    String
+  frequency   String
+  priority    String
+  startDate   DateTime
+  active      Boolean  @default(true)
+
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
+
+  records     Record[]
 }
 
-model User {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  name String
-  email String @unique
-  password String
-  salt String //PASSWORD ENCRYPTION
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  UserHabits UserHabits[]
+model Record {
+  id          String   @id @default(uuid()) @map("_id")
+  date        DateTime
+  completed   Boolean  @default(false)
 
-}
+  habitId     String
+  habit       Habit    @relation(fields: [habitId], references: [id])
 
-model UserHabits {
-  id String @id @default(auto()) @map("_id") @db.ObjectId
-  user User @relation(fields: [userId], references: [id])
-  userId String @db.ObjectId
-  habit Habit @relation(fields: [habitId], references: [id])
-  habitId String @db.ObjectId
+  userId      String
+  user        User     @relation(fields: [userId], references: [id])
 }
