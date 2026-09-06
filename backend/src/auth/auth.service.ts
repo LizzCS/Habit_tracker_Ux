@@ -1,26 +1,104 @@
-import { Injectable } from '@nestjs/common';
-import { CreateAuthDto } from './dto/create-auth.dto';
-import { UpdateAuthDto } from './dto/update-auth.dto';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
+
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import * as crypto from 'crypto';
+
+import { JwtService } from '@nestjs/jwt';
+
+import { User, UserDocument } from '../users/schemas/users.schema';
+
+import { RegisterDto } from './dto/register.dto';
+import { LoginDto } from './dto/login.dto';
 
 @Injectable()
 export class AuthService {
-  create(createAuthDto: CreateAuthDto) {
-    return 'This action adds a new auth';
+  constructor(
+    @InjectModel(User.name)
+    private readonly userModel: Model<UserDocument>,
+
+    private readonly jwtService: JwtService,
+  ) {}
+
+  async register(dto: RegisterDto) {
+    // Check if email already exists
+    const existingUser = await this.userModel
+      .findOne({ email: dto.email })
+      .exec();
+
+    if (existingUser) {
+      throw new ConflictException('Email already exists');
+    }
+
+    // Generate salt
+    const salt = crypto.randomBytes(16).toString('hex');
+
+    // Hash password
+    const hashedPassword = crypto
+      .createHash('sha256')
+      .update(dto.password + salt)
+      .digest('hex');
+
+    // Create user
+    const user = await this.userModel.create({
+      name: dto.name,
+      email: dto.email,
+      password: hashedPassword,
+      salt,
+    });
+
+    // Generate JWT
+    const token = this.jwtService.sign({
+      sub: user._id.toString(),
+      email: user.email,
+    });
+
+    return {
+      access_token: token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    };
   }
 
-  findAll() {
-    return `This action returns all auth`;
-  }
+  async login(dto: LoginDto) {
+    // Find user
+    const user = await this.userModel.findOne({ email: dto.email }).exec();
 
-  findOne(id: number) {
-    return `This action returns a #${id} auth`;
-  }
+    if (!user) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
 
-  update(id: number, updateAuthDto: UpdateAuthDto) {
-    return `This action updates a #${id} auth`;
-  }
+    // Hash the password entered during login
+    const hashedPassword = crypto
+      .createHash('sha256')
+      .update(dto.password + user.salt)
+      .digest('hex');
 
-  remove(id: number) {
-    return `This action removes a #${id} auth`;
+    // Compare passwords
+    if (hashedPassword !== user.password) {
+      throw new UnauthorizedException('Invalid email or password');
+    }
+
+    // Generate JWT
+    const token = this.jwtService.sign({
+      sub: user._id.toString(),
+      email: user.email,
+    });
+
+    return {
+      access_token: token,
+      user: {
+        id: user._id,
+        name: user.name,
+        email: user.email,
+      },
+    };
   }
 }

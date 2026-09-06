@@ -1,5 +1,6 @@
 import {
   IsDateString,
+  IsEnum,
   IsNotEmpty,
   IsOptional,
   IsString,
@@ -18,12 +19,10 @@ export class CreateHabitDto {
   @IsNotEmpty()
   category!: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsEnum(['diaria', 'semanal', 'anual'])
   frequency!: string;
 
-  @IsString()
-  @IsNotEmpty()
+  @IsEnum(['baja', 'media', 'alta'])
   priority!: string;
 
   @IsDateString()
