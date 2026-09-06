@@ -1,50 +1,55 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
-  Patch,
   Post,
+  Body,
+  Patch,
+  Param,
+  Delete,
+  UseGuards,
+  Req,
 } from '@nestjs/common';
+
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 import { HabitsService } from './habits.service';
 import { CreateHabitDto } from './dto/create-habit.dto';
 import { UpdateHabitDto } from './dto/update-habit.dto';
 
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
+
+@ApiBearerAuth()
+@UseGuards(JwtAuthGuard)
 @Controller('habits')
 export class HabitsController {
   constructor(private readonly habitsService: HabitsService) {}
 
   @Post()
-  create(@Body() createHabitDto: CreateHabitDto) {
-    return this.habitsService.create(
-      '68c123456789012345678901',
-      createHabitDto,
-    );
+  create(@Body() createHabitDto: CreateHabitDto, @Req() req: any) {
+    return this.habitsService.create(req.user.sub, createHabitDto);
   }
 
   @Get()
-  findAll() {
-    return this.habitsService.findAll('68c123456789012345678901');
+  findAll(@Req() req: any) {
+    return this.habitsService.findAll(req.user.sub);
   }
 
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.habitsService.findOne(id, '68c123456789012345678901');
+  findOne(@Param('id') id: string, @Req() req: any) {
+    return this.habitsService.findOne(id, req.user.sub);
   }
 
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateHabitDto: UpdateHabitDto) {
-    return this.habitsService.update(
-      id,
-      '68c123456789012345678901',
-      updateHabitDto,
-    );
+  update(
+    @Param('id') id: string,
+    @Body() updateHabitDto: UpdateHabitDto,
+    @Req() req: any,
+  ) {
+    return this.habitsService.update(id, req.user.sub, updateHabitDto);
   }
 
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.habitsService.remove(id, '68c123456789012345678901');
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.habitsService.remove(id, req.user.sub);
   }
 }

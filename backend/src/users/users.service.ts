@@ -22,26 +22,34 @@ export class UsersService {
   // CREATE
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.userModel.findOne({
-      correo: createUserDto.email,
+      email: createUserDto.email,
     });
 
     if (existingUser) {
       throw new ConflictException('El correo ya está registrado');
     }
 
-    const user = new this.userModel(createUserDto);
+    const user = new this.userModel({
+      name: createUserDto.name,
+      email: createUserDto.email,
+      password: createUserDto.password,
+      salt: '',
+    });
 
     return user.save();
   }
 
   // READ ALL
   async findAll() {
-    return this.userModel.find().select('-contraseña').exec();
+    return this.userModel.find().select('-password -salt').exec();
   }
 
   // READ ONE
   async findOne(id: string) {
-    const user = await this.userModel.findById(id).select('-contraseña').exec();
+    const user = await this.userModel
+      .findById(id)
+      .select('-password -salt')
+      .exec();
 
     if (!user) {
       throw new NotFoundException('Usuario no encontrado');
@@ -57,7 +65,7 @@ export class UsersService {
         new: true,
         runValidators: true,
       })
-      .select('-contraseña')
+      .select('-password -salt')
       .exec();
 
     if (!user) {
@@ -71,7 +79,7 @@ export class UsersService {
   async remove(id: string) {
     const user = await this.userModel
       .findByIdAndDelete(id)
-      .select('-contraseña')
+      .select('-password -salt')
       .exec();
 
     if (!user) {
