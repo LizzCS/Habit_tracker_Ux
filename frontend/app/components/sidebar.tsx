@@ -99,6 +99,15 @@ export default function Sidebar() {
           padding: "0 30px",
         }}
       >
+        {/* DASHBOARD */}
+        <Button
+          variant="outlined"
+          className="dashboardButton"
+          startIcon={<AnalyticsIcon />}
+          onClick={() => navigateTo("/dashboard")}
+        >
+          Dashboard
+        </Button>
         {/* PROFILE */}
         <Button
           variant="outlined"

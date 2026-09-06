@@ -15,35 +15,24 @@ export class RecordsService {
     private readonly recordModel: Model<RecordDocument>,
   ) {}
 
-  // CREATE
-  async create(createRecordDto: CreateRecordDto) {
-    const record = new this.recordModel(createRecordDto);
+  async create(userId: string, createRecordDto: CreateRecordDto) {
+    const record = new this.recordModel({
+      ...createRecordDto,
+      userId,
+    });
 
     return record.save();
   }
 
-  // READ ALL
-  async findAll() {
-    return this.recordModel.find().exec();
+  async findAll(userId: string) {
+    return this.recordModel.find({ userId }).exec();
   }
 
-  // READ ONE
-  async findOne(id: string) {
-    const record = await this.recordModel.findById(id).exec();
-
-    if (!record) {
-      throw new NotFoundException('Registro no encontrado');
-    }
-
-    return record;
-  }
-
-  // UPDATE
-  async update(id: string, updateRecordDto: UpdateRecordDto) {
+  async findOne(id: string, userId: string) {
     const record = await this.recordModel
-      .findByIdAndUpdate(id, updateRecordDto, {
-        new: true,
-        runValidators: true,
+      .findOne({
+        _id: id,
+        userId,
       })
       .exec();
 
@@ -54,9 +43,35 @@ export class RecordsService {
     return record;
   }
 
-  // DELETE
-  async remove(id: string) {
-    const record = await this.recordModel.findByIdAndDelete(id).exec();
+  async update(id: string, userId: string, updateRecordDto: UpdateRecordDto) {
+    const record = await this.recordModel
+      .findOneAndUpdate(
+        {
+          _id: id,
+          userId,
+        },
+        updateRecordDto,
+        {
+          new: true,
+          runValidators: true,
+        },
+      )
+      .exec();
+
+    if (!record) {
+      throw new NotFoundException('Registro no encontrado');
+    }
+
+    return record;
+  }
+
+  async remove(id: string, userId: string) {
+    const record = await this.recordModel
+      .findOneAndDelete({
+        _id: id,
+        userId,
+      })
+      .exec();
 
     if (!record) {
       throw new NotFoundException('Registro no encontrado');

@@ -11,24 +11,46 @@ import Checkbox from "@mui/material/Checkbox";
 import Typography from "@mui/material/Typography";
 import LinearProgress from "@mui/material/LinearProgress";
 
-export default function CheckboxList() {
-  const [checked, setChecked] = React.useState([0]);
+import { apiFetch } from "../../../lib/API";
 
-  const habits = ["Exercise", "Read 20 minutes", "Drink water", "Study"];
+import type { Habit } from "../../dashboard/page";
 
-  const progressValues = [60, 80, 25, 90];
+interface CheckboxListProps {
+  habits: Habit[];
+  completedHabitIds: string[];
+  onHabitCompleted: () => void;
+}
 
-  const handleToggle = (value: number) => () => {
-    const currentIndex = checked.indexOf(value);
-    const newChecked = [...checked];
+export default function CheckboxList({
+  habits,
+  completedHabitIds,
+  onHabitCompleted,
+}: CheckboxListProps) {
+  const [savingId, setSavingId] = React.useState<string | null>(null);
 
-    if (currentIndex === -1) {
-      newChecked.push(value);
-    } else {
-      newChecked.splice(currentIndex, 1);
+  const handleToggle = async (habit: Habit) => {
+    const isCompleted = completedHabitIds.includes(habit._id);
+
+    if (isCompleted) return;
+
+    try {
+      setSavingId(habit._id);
+
+      await apiFetch("/records", {
+        method: "POST",
+        body: JSON.stringify({
+          habitId: habit._id,
+          date: new Date().toISOString(),
+          completed: true,
+        }),
+      });
+
+      onHabitCompleted();
+    } catch (error) {
+      console.error("No se pudo completar el hábito:", error);
+    } finally {
+      setSavingId(null);
     }
-
-    setChecked(newChecked);
   };
 
   return (
@@ -55,7 +77,6 @@ export default function CheckboxList() {
           borderBottom: "1px solid #d5eeee",
         }}
       >
-        {/* NUMBER */}
         <Box
           sx={{
             width: 30,
@@ -74,7 +95,6 @@ export default function CheckboxList() {
           {habits.length}
         </Box>
 
-        {/* TITLE */}
         <Typography
           sx={{
             fontSize: "15px",
@@ -93,114 +113,129 @@ export default function CheckboxList() {
           overflowY: "auto",
           px: 1.5,
           py: 1,
-
           "&::-webkit-scrollbar": {
             width: "5px",
           },
-
           "&::-webkit-scrollbar-thumb": {
             backgroundColor: "#1B8585",
             borderRadius: "10px",
           },
-
           "&::-webkit-scrollbar-track": {
             backgroundColor: "#f1f1f1",
           },
         }}
       >
         <List sx={{ p: 0 }}>
-          {habits.map((habit, value) => {
-            const progress = progressValues[value];
+          {habits.length === 0 ? (
+            <Typography
+              sx={{
+                textAlign: "center",
+                color: "#9ca3af",
+                fontSize: "13px",
+                py: 3,
+              }}
+            >
+              No tienes hábitos pendientes
+            </Typography>
+          ) : (
+            habits.map((habit) => {
+              const isCompleted = completedHabitIds.includes(habit._id);
+              const progress = isCompleted ? 100 : 0;
+              const saving = savingId === habit._id;
 
-            return (
-              <ListItem key={value} disablePadding sx={{ mb: 0.5 }}>
-                <ListItemButton
-                  onClick={handleToggle(value)}
-                  sx={{
-                    borderRadius: "10px",
-                    px: 1,
-                    py: 1,
-
-                    "&:hover": {
-                      backgroundColor: "#f0fafa",
-                    },
-                  }}
-                >
-                  <ListItemIcon
+              return (
+                <ListItem key={habit._id} disablePadding sx={{ mb: 0.5 }}>
+                  <ListItemButton
+                    onClick={() => handleToggle(habit)}
+                    disabled={saving || isCompleted}
                     sx={{
-                      minWidth: "32px",
+                      borderRadius: "10px",
+                      px: 1,
+                      py: 1,
+                      "&:hover": {
+                        backgroundColor: "#f0fafa",
+                      },
                     }}
                   >
-                    <Checkbox
-                      edge="start"
-                      checked={checked.includes(value)}
-                      tabIndex={-1}
-                      disableRipple
-                      size="small"
+                    <ListItemIcon
                       sx={{
-                        p: 0.5,
-                        color: "#1B8585",
-
-                        "&.Mui-checked": {
-                          color: "#1B8585",
-                        },
-                      }}
-                    />
-                  </ListItemIcon>
-
-                  <Box sx={{ width: "100%", minWidth: 0 }}>
-                    <Typography
-                      sx={{
-                        fontSize: "13px",
-                        fontWeight: 500,
-                        color: "#374151",
-                        mb: 0.5,
-                        overflow: "hidden",
-                        textOverflow: "ellipsis",
-                        whiteSpace: "nowrap",
+                        minWidth: "32px",
                       }}
                     >
-                      {habit}
-                    </Typography>
-
-                    <Box
-                      sx={{
-                        display: "flex",
-                        alignItems: "center",
-                        gap: 0.75,
-                      }}
-                    >
-                      <LinearProgress
-                        variant="determinate"
-                        value={progress}
+                      <Checkbox
+                        edge="start"
+                        checked={isCompleted}
+                        tabIndex={-1}
+                        disableRipple
+                        size="small"
                         sx={{
-                          flex: 1,
-                          height: 5,
-                          borderRadius: 5,
-                          backgroundColor: "#e5e7eb",
-
-                          "& .MuiLinearProgress-bar": {
-                            backgroundColor: "#1B8585",
-                            borderRadius: 5,
+                          p: 0.5,
+                          color: "#1B8585",
+                          "&.Mui-checked": {
+                            color: "#1B8585",
                           },
                         }}
                       />
+                    </ListItemIcon>
 
+                    <Box
+                      sx={{
+                        width: "100%",
+                        minWidth: 0,
+                      }}
+                    >
                       <Typography
                         sx={{
-                          fontSize: "10px",
-                          fontWeight: 600,
-                          color: "#1B8585",
+                          fontSize: "13px",
+                          fontWeight: 500,
+                          color: "#374151",
+                          mb: 0.5,
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                          whiteSpace: "nowrap",
                         }}
                       >
-                        {progress}%
+                        {habit.name}
                       </Typography>
+
+                      <Box
+                        sx={{
+                          display: "flex",
+                          alignItems: "center",
+                          gap: 0.75,
+                        }}
+                      >
+                        <LinearProgress
+                          variant="determinate"
+                          value={progress}
+                          sx={{
+                            flex: 1,
+                            height: 5,
+                            borderRadius: 5,
+                            backgroundColor: "#e5e7eb",
+                            "& .MuiLinearProgress-bar": {
+                              backgroundColor: "#1B8585",
+                              borderRadius: 5,
+                            },
+                          }}
+                        />
+
+                        <Typography
+                          sx={{
+                            fontSize: "10px",
+                            fontWeight: 600,
+                            color: "#1B8585",
+                          }}
+                        >
+                          {saving ? "..." : `${progress}%`}
+                        </Typography>
+                      </Box>
                     </Box>
-                  </Box>
-                </ListItemButton>
-              </ListItem>
-            );
-          })}
+                  </ListItemButton>
+                </ListItem>
+              );
+            })
+          )}
         </List>
       </Box>
     </Box>

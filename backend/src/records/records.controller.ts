@@ -6,44 +6,46 @@ import {
   Param,
   Patch,
   Post,
+  Req,
+  UseGuards,
 } from '@nestjs/common';
 
 import { RecordsService } from './records.service';
-
 import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
+import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 
 @Controller('records')
+@UseGuards(JwtAuthGuard)
 export class RecordsController {
   constructor(private readonly recordsService: RecordsService) {}
 
-  // CREATE
   @Post()
-  create(@Body() createRecordDto: CreateRecordDto) {
-    return this.recordsService.create(createRecordDto);
+  create(@Body() createRecordDto: CreateRecordDto, @Req() req: any) {
+    return this.recordsService.create(req.user.sub, createRecordDto);
   }
 
-  // READ ALL
   @Get()
-  findAll() {
-    return this.recordsService.findAll();
+  findAll(@Req() req: any) {
+    return this.recordsService.findAll(req.user.sub);
   }
 
-  // READ ONE
   @Get(':id')
-  findOne(@Param('id') id: string) {
-    return this.recordsService.findOne(id);
+  findOne(@Param('id') id: string, @Req() req: any) {
+    return this.recordsService.findOne(id, req.user.sub);
   }
 
-  // UPDATE
   @Patch(':id')
-  update(@Param('id') id: string, @Body() updateRecordDto: UpdateRecordDto) {
-    return this.recordsService.update(id, updateRecordDto);
+  update(
+    @Param('id') id: string,
+    @Body() updateRecordDto: UpdateRecordDto,
+    @Req() req: any,
+  ) {
+    return this.recordsService.update(id, req.user.sub, updateRecordDto);
   }
 
-  // DELETE
   @Delete(':id')
-  remove(@Param('id') id: string) {
-    return this.recordsService.remove(id);
+  remove(@Param('id') id: string, @Req() req: any) {
+    return this.recordsService.remove(id, req.user.sub);
   }
 }
