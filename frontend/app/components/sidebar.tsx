@@ -1,6 +1,7 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
+
 import { useRouter } from "next/navigation";
 
 import Button from "@mui/material/Button";
@@ -19,8 +20,25 @@ import CloseIcon from "@mui/icons-material/Close";
 
 export default function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [userName, setUserName] = useState("");
 
   const router = useRouter();
+
+  useEffect(() => {
+    const storedUser = localStorage.getItem("user");
+
+    if (!storedUser) {
+      return;
+    }
+
+    try {
+      const user = JSON.parse(storedUser);
+
+      setUserName(user.name || "");
+    } catch {
+      setUserName("");
+    }
+  }, []);
 
   const handleDrawerToggle = () => {
     setMobileOpen(!mobileOpen);
@@ -31,9 +49,17 @@ export default function Sidebar() {
     setMobileOpen(false);
   };
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+
+    router.push("/login");
+    setMobileOpen(false);
+  };
+
   const drawerContent = (
     <>
       {/* MOBILE CLOSE BUTTON */}
+
       <Box
         sx={{
           display: {
@@ -55,6 +81,7 @@ export default function Sidebar() {
       </Box>
 
       {/* PROFILE */}
+
       <Box
         sx={{
           marginTop: {
@@ -76,7 +103,7 @@ export default function Sidebar() {
             marginLeft: "24px",
           }}
         >
-          N
+          {userName ? userName.charAt(0).toUpperCase() : "N"}
         </Avatar>
 
         <p
@@ -86,11 +113,12 @@ export default function Sidebar() {
             marginLeft: "24px",
           }}
         >
-          John Doe
+          {userName || "Usuario"}
         </p>
       </Box>
 
       {/* NAVIGATION */}
+
       <Box
         sx={{
           display: "flex",
@@ -100,6 +128,7 @@ export default function Sidebar() {
         }}
       >
         {/* DASHBOARD */}
+
         <Button
           variant="outlined"
           className="dashboardButton"
@@ -108,7 +137,9 @@ export default function Sidebar() {
         >
           Dashboard
         </Button>
+
         {/* PROFILE */}
+
         <Button
           variant="outlined"
           className="dashboardButton"
@@ -119,6 +150,7 @@ export default function Sidebar() {
         </Button>
 
         {/* LISTA */}
+
         <Button
           variant="outlined"
           className="dashboardButton"
@@ -129,6 +161,7 @@ export default function Sidebar() {
         </Button>
 
         {/* EVALUACION */}
+
         <Button
           variant="outlined"
           className="dashboardButton"
@@ -150,11 +183,12 @@ export default function Sidebar() {
         />
 
         {/* LOGOUT */}
+
         <Button
           variant="outlined"
           className="logOutButton"
           startIcon={<ExitToAppIcon />}
-          onClick={() => navigateTo("/login")}
+          onClick={handleLogout}
         >
           Logout
         </Button>
@@ -165,6 +199,7 @@ export default function Sidebar() {
   return (
     <>
       {/* DESKTOP SIDEBAR */}
+
       <Drawer
         variant="permanent"
         anchor="left"
@@ -173,7 +208,6 @@ export default function Sidebar() {
             xs: "none",
             md: "block",
           },
-
           "& .MuiDrawer-paper": {
             backgroundColor: "#1B8585",
             width: "240px",
@@ -185,6 +219,7 @@ export default function Sidebar() {
       </Drawer>
 
       {/* MOBILE SIDEBAR */}
+
       <Drawer
         variant="temporary"
         anchor="left"
@@ -198,7 +233,6 @@ export default function Sidebar() {
             xs: "block",
             md: "none",
           },
-
           "& .MuiDrawer-paper": {
             backgroundColor: "#1B8585",
             width: {
@@ -214,6 +248,7 @@ export default function Sidebar() {
       </Drawer>
 
       {/* MOBILE MENU BUTTON */}
+
       <IconButton
         onClick={handleDrawerToggle}
         sx={{
@@ -221,15 +256,12 @@ export default function Sidebar() {
             xs: "flex",
             md: "none",
           },
-
           position: "fixed",
           top: "16px",
           left: "16px",
           zIndex: 1200,
-
           backgroundColor: "#1B8585",
           color: "white",
-
           "&:hover": {
             backgroundColor: "#156f6f",
           },

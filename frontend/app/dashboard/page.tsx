@@ -15,28 +15,15 @@ import StreaksTittle from "../components/dashboard/cards";
 import { Charts } from "../components/dashboard/Graphs";
 import TitanicPie from "../components/dashboard/porcentageChart";
 
-import { apiFetch } from "../../lib/API";
+import {
+  loadDashboard,
+  getActiveHabits,
+  getCompletedTodayRecords,
+  getCompletedHabitIds,
+  getCompletionPercentage,
+} from "./logic";
 
-export type Habit = {
-  _id: string;
-  name: string;
-  description?: string;
-  category?: string;
-  frequency: "diaria" | "semanal" | "anual";
-  priority: "baja" | "media" | "alta";
-  startDate?: string;
-  endDate?: string;
-  active: boolean;
-  userId: string;
-};
-
-export type HabitRecord = {
-  _id: string;
-  habitId: string;
-  userId: string;
-  date: string;
-  completed: boolean;
-};
+import type { Habit, HabitRecord } from "./types";
 
 export default function Dashboard() {
   const router = useRouter();
@@ -47,44 +34,14 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  /*
-   * Comprueba si un record pertenece al día de hoy.
-   */
-  const isToday = (date: string) => {
-    const recordDate = new Date(date);
-    const today = new Date();
-
-    return (
-      recordDate.getFullYear() === today.getFullYear() &&
-      recordDate.getMonth() === today.getMonth() &&
-      recordDate.getDate() === today.getDate()
-    );
-  };
-
-  /*
-   * Cargar hábitos.
-   */
-  const loadHabits = async () => {
-    const data = await apiFetch("/habits");
-    setHabits(data);
-  };
-
-  /*
-   * Cargar records.
-   */
-  const loadRecords = async () => {
-    const data = await apiFetch("/records");
-    setRecords(data);
-  };
-
-  /*
-   * Cargar todo el dashboard.
-   */
-  const loadDashboard = async () => {
+  const refreshDashboard = async () => {
     try {
       setError("");
 
-      await Promise.all([loadHabits(), loadRecords()]);
+      const data = await loadDashboard();
+
+      setHabits(data.habits);
+      setRecords(data.records);
     } catch (err) {
       if (err instanceof Error) {
         setError(err.message);
@@ -94,9 +51,6 @@ export default function Dashboard() {
     }
   };
 
-  /*
-   * Comprobar autenticación y cargar datos.
-   */
   useEffect(() => {
     const token = localStorage.getItem("token");
 
@@ -108,7 +62,7 @@ export default function Dashboard() {
     const initializeDashboard = async () => {
       try {
         setLoading(true);
-        await loadDashboard();
+        await refreshDashboard();
       } finally {
         setLoading(false);
       }
@@ -117,49 +71,25 @@ export default function Dashboard() {
     initializeDashboard();
   }, [router]);
 
-  /*
-   * Solo hábitos activos.
-   */
-  const activeHabits = useMemo(
-    () => habits.filter((habit) => habit.active),
-    [habits],
-  );
+  const activeHabits = useMemo(() => getActiveHabits(habits), [habits]);
 
-  /*
-   * Records completados HOY.
-   */
   const completedTodayRecords = useMemo(
-    () => records.filter((record) => record.completed && isToday(record.date)),
+    () => getCompletedTodayRecords(records),
     [records],
   );
 
-  /*
-   * IDs de los hábitos completados hoy.
-   *
-   * Esto se utiliza para que CheckBoxList
-   * sepa qué checkboxes deben aparecer marcados.
-   */
   const completedHabitIds = useMemo(
-    () => completedTodayRecords.map((record) => record.habitId),
+    () => getCompletedHabitIds(completedTodayRecords),
     [completedTodayRecords],
   );
 
-  /*
-   * Cantidad de hábitos completados hoy.
-   */
   const completedToday = completedTodayRecords.length;
 
-  /*
-   * Porcentaje de cumplimiento.
-   */
-  const completionPercentage =
-    activeHabits.length > 0
-      ? Math.round((completedToday / activeHabits.length) * 100)
-      : 0;
+  const completionPercentage = getCompletionPercentage(
+    completedToday,
+    activeHabits.length,
+  );
 
-  /*
-   * Loading inicial.
-   */
   if (loading) {
     return (
       <Box
@@ -192,33 +122,26 @@ export default function Dashboard() {
             xs: 0,
             md: "240px",
           },
-
           width: {
             xs: "100%",
             md: "calc(100% - 240px)",
           },
-
           minHeight: "100vh",
           boxSizing: "border-box",
-
           padding: {
             xs: "70px 16px 20px",
             sm: "70px 24px 24px",
             md: "40px",
           },
-
           display: "flex",
           flexDirection: "column",
-
           gap: {
             xs: "20px",
             md: "28px",
           },
         }}
       >
-        {/* ================================= */}
         {/* HEADER */}
-        {/* ================================= */}
 
         <Box sx={{ width: "100%" }}>
           <Typography
@@ -226,7 +149,6 @@ export default function Dashboard() {
             sx={{
               fontWeight: 700,
               color: "#1f2937",
-
               fontSize: {
                 xs: "26px",
                 sm: "30px",
@@ -236,21 +158,9 @@ export default function Dashboard() {
           >
             Dashboard
           </Typography>
-
-          <Typography
-            sx={{
-              color: "#6b7280",
-              mt: 0.5,
-              fontSize: "14px",
-            }}
-          >
-            Gestiona tus hábitos y revisa tu progreso.
-          </Typography>
         </Box>
 
-        {/* ================================= */}
         {/* ERROR */}
-        {/* ================================= */}
 
         {error && (
           <Alert severity="error" onClose={() => setError("")}>
@@ -258,161 +168,15 @@ export default function Dashboard() {
           </Alert>
         )}
 
-        {/* ================================= */}
-        {/* SUMMARY */}
-        {/* ================================= */}
-
-        <Box
-          sx={{
-            display: "grid",
-
-            gridTemplateColumns: {
-              xs: "1fr",
-              sm: "repeat(2, 1fr)",
-              lg: "repeat(4, 1fr)",
-            },
-
-            gap: "16px",
-          }}
-        >
-          {/* ACTIVOS */}
-
-          <Box
-            sx={{
-              backgroundColor: "white",
-              borderRadius: "14px",
-              padding: "20px",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "#6b7280",
-                fontSize: "13px",
-              }}
-            >
-              Hábitos activos
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: "30px",
-                fontWeight: 700,
-                color: "#1B8585",
-                mt: 1,
-              }}
-            >
-              {activeHabits.length}
-            </Typography>
-          </Box>
-
-          {/* TOTAL */}
-
-          <Box
-            sx={{
-              backgroundColor: "white",
-              borderRadius: "14px",
-              padding: "20px",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "#6b7280",
-                fontSize: "13px",
-              }}
-            >
-              Total de hábitos
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: "30px",
-                fontWeight: 700,
-                color: "#1B8585",
-                mt: 1,
-              }}
-            >
-              {habits.length}
-            </Typography>
-          </Box>
-
-          {/* COMPLETADOS */}
-
-          <Box
-            sx={{
-              backgroundColor: "white",
-              borderRadius: "14px",
-              padding: "20px",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "#6b7280",
-                fontSize: "13px",
-              }}
-            >
-              Completados hoy
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: "30px",
-                fontWeight: 700,
-                color: "#1B8585",
-                mt: 1,
-              }}
-            >
-              {completedToday}
-            </Typography>
-          </Box>
-
-          {/* PORCENTAJE */}
-
-          <Box
-            sx={{
-              backgroundColor: "white",
-              borderRadius: "14px",
-              padding: "20px",
-              border: "1px solid #e5e7eb",
-            }}
-          >
-            <Typography
-              sx={{
-                color: "#6b7280",
-                fontSize: "13px",
-              }}
-            >
-              Cumplimiento
-            </Typography>
-
-            <Typography
-              sx={{
-                fontSize: "30px",
-                fontWeight: 700,
-                color: "#1B8585",
-                mt: 1,
-              }}
-            >
-              {completionPercentage}%
-            </Typography>
-          </Box>
-        </Box>
-
-        {/* ================================= */}
         {/* LISTS */}
-        {/* ================================= */}
 
         <Box
           sx={{
             display: "grid",
-
             gridTemplateColumns: {
               xs: "1fr",
               lg: "repeat(2, minmax(0, 1fr))",
             },
-
             gap: "24px",
             width: "100%",
           }}
@@ -422,7 +186,7 @@ export default function Dashboard() {
           <CheckBoxList
             habits={activeHabits}
             completedHabitIds={completedHabitIds}
-            onHabitCompleted={loadDashboard}
+            onHabitCompleted={refreshDashboard}
           />
 
           {/* HÁBITOS COMPLETADOS */}
@@ -430,49 +194,40 @@ export default function Dashboard() {
           <InteractiveList
             habits={activeHabits}
             records={records}
-            onHabitDeleted={loadDashboard}
+            onHabitDeleted={refreshDashboard}
           />
         </Box>
 
-        {/* ================================= */}
         {/* STREAKS + PERCENTAGE */}
-        {/* ================================= */}
 
         <Box
           sx={{
             display: "grid",
-
             gridTemplateColumns: {
               xs: "1fr",
               lg: "1fr 1fr",
             },
-
             gap: "24px",
             alignItems: "center",
           }}
         >
           <StreaksTittle records={records} />
+
           <TitanicPie percentage={completionPercentage} />
         </Box>
 
-        {/* ================================= */}
         {/* GRAPHS */}
-        {/* ================================= */}
 
         <Box
           sx={{
             display: "grid",
-
             gridTemplateColumns: {
               xs: "1fr",
               lg: "1fr 1fr",
             },
-
             gap: "24px",
           }}
         >
-          <Charts habits={habits} />
-
           <Charts habits={habits} />
         </Box>
       </Box>

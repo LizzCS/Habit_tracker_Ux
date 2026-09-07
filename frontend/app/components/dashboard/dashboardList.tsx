@@ -13,7 +13,7 @@ import LinearProgress from "@mui/material/LinearProgress";
 
 import { apiFetch } from "../../../lib/API";
 
-import type { Habit } from "../../dashboard/page";
+import type { Habit } from "../../dashboard/types";
 
 interface CheckboxListProps {
   habits: Habit[];
@@ -27,6 +27,53 @@ export default function CheckboxList({
   onHabitCompleted,
 }: CheckboxListProps) {
   const [savingId, setSavingId] = React.useState<string | null>(null);
+
+  // Obtener solamente los hábitos que corresponden a hoy
+  const habitsForToday = habits.filter((habit) => {
+    if (!habit.active) {
+      return false;
+    }
+
+    const today = new Date();
+
+    const startDate = habit.startDate ? new Date(habit.startDate) : null;
+
+    const endDate = habit.endDate ? new Date(habit.endDate) : null;
+
+    // El hábito todavía no ha comenzado
+    if (startDate && today < startDate) {
+      return false;
+    }
+
+    // El hábito ya terminó
+    if (endDate && today > endDate) {
+      return false;
+    }
+
+    // Hábito diario
+    if (habit.frequency === "diaria") {
+      return true;
+    }
+
+    // Hábito semanal
+    if (habit.frequency === "semanal") {
+      return startDate !== null && today.getDay() === startDate.getDay();
+    }
+
+    // Hábito anual
+    if (habit.frequency === "anual") {
+      if (!startDate) {
+        return false;
+      }
+
+      return (
+        today.getMonth() === startDate.getMonth() &&
+        today.getDate() === startDate.getDate()
+      );
+    }
+
+    return false;
+  });
 
   const handleToggle = async (habit: Habit) => {
     const isCompleted = completedHabitIds.includes(habit._id);
@@ -92,7 +139,7 @@ export default function CheckboxList({
             fontWeight: 700,
           }}
         >
-          {habits.length}
+          {habitsForToday.length}
         </Box>
 
         <Typography
@@ -126,7 +173,7 @@ export default function CheckboxList({
         }}
       >
         <List sx={{ p: 0 }}>
-          {habits.length === 0 ? (
+          {habitsForToday.length === 0 ? (
             <Typography
               sx={{
                 textAlign: "center",
@@ -138,9 +185,11 @@ export default function CheckboxList({
               No tienes hábitos pendientes
             </Typography>
           ) : (
-            habits.map((habit) => {
+            habitsForToday.map((habit) => {
               const isCompleted = completedHabitIds.includes(habit._id);
+
               const progress = isCompleted ? 100 : 0;
+
               const saving = savingId === habit._id;
 
               return (

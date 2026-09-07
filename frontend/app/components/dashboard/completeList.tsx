@@ -14,7 +14,7 @@ import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
 import { apiFetch } from "../../../lib/API";
 
-import type { Habit } from "../../dashboard/page";
+import type { Habit } from "../../dashboard/types";
 
 type HabitRecord = {
   _id: string;
@@ -120,7 +120,7 @@ export default function InteractiveList({
             color: "#1B8585",
           }}
         >
-          Hábitos completados
+          Hábitos completados hoy
         </Typography>
       </Box>
 

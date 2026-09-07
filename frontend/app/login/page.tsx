@@ -37,6 +37,7 @@ export default function Login() {
       // Guardar JWT
       localStorage.setItem("token", data.access_token);
 
+      localStorage.setItem("user", JSON.stringify(data.user));
       // Ir al dashboard
       router.push("/dashboard");
     } catch (err) {

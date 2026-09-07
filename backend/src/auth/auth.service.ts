@@ -31,19 +31,16 @@ export class AuthService {
       .exec();
 
     if (existingUser) {
-      throw new ConflictException('Email already exists');
+      throw new ConflictException('El correo electrónico ya está en uso');
     }
 
-    // Generate salt
     const salt = crypto.randomBytes(16).toString('hex');
 
-    // Hash password
     const hashedPassword = crypto
       .createHash('sha256')
       .update(dto.password + salt)
       .digest('hex');
 
-    // Create user
     const user = await this.userModel.create({
       name: dto.name,
       email: dto.email,
@@ -51,7 +48,6 @@ export class AuthService {
       salt,
     });
 
-    // Generate JWT
     const token = this.jwtService.sign({
       sub: user._id.toString(),
       email: user.email,
@@ -68,25 +64,21 @@ export class AuthService {
   }
 
   async login(dto: LoginDto) {
-    // Find user
     const user = await this.userModel.findOne({ email: dto.email }).exec();
 
     if (!user) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Correo o contraseña erroneos');
     }
 
-    // Hash the password entered during login
     const hashedPassword = crypto
       .createHash('sha256')
       .update(dto.password + user.salt)
       .digest('hex');
 
-    // Compare passwords
     if (hashedPassword !== user.password) {
-      throw new UnauthorizedException('Invalid email or password');
+      throw new UnauthorizedException('Correo o contraseña erroneos');
     }
 
-    // Generate JWT
     const token = this.jwtService.sign({
       sub: user._id.toString(),
       email: user.email,

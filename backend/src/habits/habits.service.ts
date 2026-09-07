@@ -40,7 +40,7 @@ export class HabitsService {
       .exec();
 
     if (!habit) {
-      throw new NotFoundException('Habit not found');
+      throw new NotFoundException('Habito no encontrado');
     }
 
     return habit;
@@ -61,7 +61,7 @@ export class HabitsService {
       .exec();
 
     if (!habit) {
-      throw new NotFoundException('Habit not found');
+      throw new NotFoundException('Habito no encontrado');
     }
 
     return habit;
@@ -76,7 +76,7 @@ export class HabitsService {
       .exec();
 
     if (!habit) {
-      throw new NotFoundException('Habit not found');
+      throw new NotFoundException('Habito no encontrado');
     }
 
     return habit;

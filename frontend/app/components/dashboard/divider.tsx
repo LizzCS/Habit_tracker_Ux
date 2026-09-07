@@ -5,7 +5,19 @@ import Divider from "@mui/material/Divider";
 
 import { StreakCard, BestStreak } from "../dashboard/cards";
 
-export default function Streaks() {
+type HabitRecord = {
+  _id: string;
+  habitId: string;
+  userId: string;
+  date: string;
+  completed: boolean;
+};
+
+type Props = {
+  records: HabitRecord[];
+};
+
+export default function Streaks({ records }: Props) {
   return (
     <Box
       sx={{
@@ -15,11 +27,11 @@ export default function Streaks() {
         marginTop: "12px",
       }}
     >
-      <StreakCard />
+      <StreakCard records={records} />
 
-      <Divider orientation="vertical" />
+      <Divider orientation="vertical" flexItem />
 
-      <BestStreak />
+      <BestStreak records={records} />
     </Box>
   );
 }

@@ -39,7 +39,6 @@ function getTodayKey() {
   return `${year}-${month}-${day}`;
 }
 
-// Resta un día a una fecha YYYY-MM-DD
 function getPreviousDay(dateKey: string) {
   const date = new Date(`${dateKey}T12:00:00`);
 
@@ -52,7 +51,6 @@ function getPreviousDay(dateKey: string) {
   return `${year}-${month}-${day}`;
 }
 
-// Calcula el streak actual
 function calculateCurrentStreak(records: HabitRecord[]) {
   const completedDates = new Set(
     records
@@ -62,7 +60,6 @@ function calculateCurrentStreak(records: HabitRecord[]) {
 
   const today = getTodayKey();
 
-  // Si no completó nada hoy, el streak actual es 0
   if (!completedDates.has(today)) {
     return 0;
   }
@@ -79,7 +76,6 @@ function calculateCurrentStreak(records: HabitRecord[]) {
   return streak;
 }
 
-// Calcula el mejor streak histórico
 function calculateBestStreak(records: HabitRecord[]) {
   const completedDates = new Set(
     records
@@ -155,7 +151,7 @@ export function StreakCard({ records }: Props) {
             color: "#1B8585",
           }}
         >
-          Streak
+          Racha
         </Typography>
       </Box>
 
@@ -166,7 +162,7 @@ export function StreakCard({ records }: Props) {
         }}
       >
         <Typography variant="body2" color="text.secondary">
-          Current
+          Actual
         </Typography>
 
         <Typography
@@ -180,7 +176,7 @@ export function StreakCard({ records }: Props) {
         </Typography>
 
         <Typography variant="body2" color="text.secondary">
-          days
+          dias
         </Typography>
       </CardContent>
     </Card>
@@ -213,7 +209,7 @@ export function BestStreak({ records }: Props) {
             color: "#1B8585",
           }}
         >
-          Best Streak
+          Mejor Racha
         </Typography>
       </Box>
 
@@ -234,7 +230,7 @@ export function BestStreak({ records }: Props) {
         </Typography>
 
         <Typography variant="body2" color="text.secondary">
-          days
+          dias
         </Typography>
       </CardContent>
     </Card>
@@ -251,7 +247,7 @@ export default function StreaksTittle({ records }: Props) {
           fontWeight: 700,
         }}
       >
-        Streaks
+        Rachas de hábitos
       </Typography>
 
       <Box
