@@ -247,51 +247,7 @@ export default function Login() {
               md: "100%",
             },
           }}
-        >
-          <Typography
-            component="h2"
-            sx={{
-              fontFamily: "Arial, sans-serif",
-              fontSize: {
-                xs: "28px",
-                sm: "32px",
-                md: "36px",
-              },
-              color: "white",
-              mb: 2,
-            }}
-          >
-            <strong>Welcome Back</strong>
-          </Typography>
-
-          <Divider
-            sx={{
-              width: {
-                xs: "100px",
-                sm: "150px",
-              },
-              borderWidth: "1px",
-              borderColor: "white",
-              mb: 2,
-            }}
-          />
-
-          <Typography
-            sx={{
-              fontFamily: "Arial, sans-serif",
-              fontSize: {
-                xs: "14px",
-                sm: "15px",
-              },
-              lineHeight: 1.6,
-              color: "white",
-              maxWidth: "350px",
-            }}
-          >
-            Log in to continue managing your habits and keep building your
-            streak.
-          </Typography>
-        </Box>
+        ></Box>
       </Box>
     </Box>
   );

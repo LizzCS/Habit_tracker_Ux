@@ -2,6 +2,7 @@
 
 import Grid from "@mui/material/Grid";
 import { useRouter } from "next/navigation";
+import Button from "@mui/material/Button";
 
 export default function Home() {
   const router = useRouter();
@@ -14,27 +15,41 @@ export default function Home() {
         </h1>
 
         <p>
-          Track your daily habits and stay on top of your goals. Check off
-          habits as you complete them and watch your progress grow. Choose from
-          habits like drinking water, exercising, reading, studying, getting
-          enough sleep, and more.
+          Lleva un registro de tus hábitos diarios y mantente al día con tus
+          objetivos. Marca tus hábitos a medida que los completes y observa cómo
+          aumenta tu progreso. Elige entre hábitos como beber agua, hacer
+          ejercicio, leer, estudiar, dormir lo suficiente y mucho más.
         </p>
 
         <div>
           <Grid container spacing={8} size={6}>
-            <button
+            <Button
+              variant="outlined"
               onClick={() => router.push("/login")}
-              className="bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600"
-            >
-              Log In
-            </button>
+              sx={{
+                width: "150px",
 
-            <button
-              onClick={() => router.push("/registro")}
-              className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600 ml-4"
+                color: "#1B8585",
+                borderColor: "#1B8585",
+                "&:hover": {
+                  borderColor: "#176f6f",
+                },
+              }}
             >
-              Sign Up
-            </button>
+              Log in
+            </Button>
+
+            <Button
+              variant="contained"
+              onClick={() => router.push("/register")}
+              sx={{
+                width: "150px",
+
+                backgroundColor: "#1B8585",
+              }}
+            >
+              Sign up
+            </Button>
           </Grid>
         </div>
       </main>
