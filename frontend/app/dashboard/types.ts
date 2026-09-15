@@ -3,8 +3,9 @@ export type Habit = {
   name: string;
   description?: string;
   category?: string;
-  frequency: "diaria" | "semanal" | "anual";
+  frequency: "diaria" | "semanal" | "mensual";
   priority: "baja" | "media" | "alta";
+  repeticiones: number;
   startDate?: string;
   endDate?: string;
   active: boolean;

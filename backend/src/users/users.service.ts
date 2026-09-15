@@ -19,7 +19,6 @@ export class UsersService {
     private readonly userModel: Model<UserDocument>,
   ) {}
 
-  // CREATE
   async create(createUserDto: CreateUserDto) {
     const existingUser = await this.userModel.findOne({
       email: createUserDto.email,
@@ -32,6 +31,8 @@ export class UsersService {
     const user = new this.userModel({
       name: createUserDto.name,
       email: createUserDto.email,
+      racha: 0,
+      mejorRacha: 0,
       password: createUserDto.password,
       salt: '',
     });
@@ -39,12 +40,10 @@ export class UsersService {
     return user.save();
   }
 
-  // READ ALL
   async findAll() {
     return this.userModel.find().select('-password -salt').exec();
   }
 
-  // READ ONE
   async findOne(id: string) {
     const user = await this.userModel
       .findById(id)
@@ -58,7 +57,6 @@ export class UsersService {
     return user;
   }
 
-  // UPDATE
   async update(id: string, updateUserDto: UpdateUserDto) {
     const user = await this.userModel
       .findByIdAndUpdate(id, updateUserDto, {
@@ -75,7 +73,6 @@ export class UsersService {
     return user;
   }
 
-  // DELETE
   async remove(id: string) {
     const user = await this.userModel
       .findByIdAndDelete(id)

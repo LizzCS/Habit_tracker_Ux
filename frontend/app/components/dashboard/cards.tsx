@@ -5,260 +5,131 @@ import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 
-type HabitRecord = {
-  _id: string;
-  habitId: string;
-  userId: string;
-  date: string;
-  completed: boolean;
-};
+import type { Habit, HabitRecord } from "../../dashboard/types";
+import { getHabitStreak } from "../../dashboard/logic";
 
 type Props = {
+  habits: Habit[];
   records: HabitRecord[];
 };
 
-// Convierte una fecha a YYYY-MM-DD usando la fecha local
-function getDateKey(dateString: string) {
-  const date = new Date(dateString);
+export default function StreaksTitle({ habits, records }: Props) {
+  const dailyStreaks = habits
+    .filter((habit) => habit.frequency === "diaria")
+    .map((habit) => getHabitStreak(habit, records));
 
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
+  const weeklyStreaks = habits
+    .filter((habit) => habit.frequency === "semanal")
+    .map((habit) => getHabitStreak(habit, records));
 
-  return `${year}-${month}-${day}`;
-}
+  const monthlyStreaks = habits
+    .filter((habit) => habit.frequency === "mensual")
+    .map((habit) => getHabitStreak(habit, records));
 
-// Devuelve la fecha de hoy como YYYY-MM-DD
-function getTodayKey() {
-  const today = new Date();
+  const dailyStreak = Math.max(0, ...dailyStreaks);
+  const weeklyStreak = Math.max(0, ...weeklyStreaks);
+  const monthlyStreak = Math.max(0, ...monthlyStreaks);
 
-  const year = today.getFullYear();
-  const month = String(today.getMonth() + 1).padStart(2, "0");
-  const day = String(today.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function getPreviousDay(dateKey: string) {
-  const date = new Date(`${dateKey}T12:00:00`);
-
-  date.setDate(date.getDate() - 1);
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-function calculateCurrentStreak(records: HabitRecord[]) {
-  const completedDates = new Set(
-    records
-      .filter((record) => record.completed)
-      .map((record) => getDateKey(record.date)),
-  );
-
-  const today = getTodayKey();
-
-  if (!completedDates.has(today)) {
-    return 0;
-  }
-
-  let streak = 0;
-  let currentDate = today;
-
-  while (completedDates.has(currentDate)) {
-    streak++;
-
-    currentDate = getPreviousDay(currentDate);
-  }
-
-  return streak;
-}
-
-function calculateBestStreak(records: HabitRecord[]) {
-  const completedDates = new Set(
-    records
-      .filter((record) => record.completed)
-      .map((record) => getDateKey(record.date)),
-  );
-
-  if (completedDates.size === 0) {
-    return 0;
-  }
-
-  const dates = Array.from(completedDates).sort();
-
-  let bestStreak = 1;
-  let currentStreak = 1;
-
-  for (let i = 1; i < dates.length; i++) {
-    const previousDate = dates[i - 1];
-    const currentDate = dates[i];
-
-    const expectedNextDate = getNextDay(previousDate);
-
-    if (currentDate === expectedNextDate) {
-      currentStreak++;
-    } else {
-      currentStreak = 1;
-    }
-
-    if (currentStreak > bestStreak) {
-      bestStreak = currentStreak;
-    }
-  }
-
-  return bestStreak;
-}
-
-// Obtiene el día siguiente
-function getNextDay(dateKey: string) {
-  const date = new Date(`${dateKey}T12:00:00`);
-
-  date.setDate(date.getDate() + 1);
-
-  const year = date.getFullYear();
-  const month = String(date.getMonth() + 1).padStart(2, "0");
-  const day = String(date.getDate()).padStart(2, "0");
-
-  return `${year}-${month}-${day}`;
-}
-
-export function StreakCard({ records }: Props) {
-  const currentStreak = calculateCurrentStreak(records);
-
-  return (
-    <Card
-      sx={{
-        flex: 1,
-        borderRadius: "14px 0 0 14px",
-        overflow: "hidden",
-        boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
-      }}
-    >
-      <Box
-        sx={{
-          backgroundColor: "#e6f7f7",
-          py: 1.5,
-          textAlign: "center",
-        }}
-      >
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontWeight: 700,
-            color: "#1B8585",
-          }}
-        >
-          Racha
-        </Typography>
-      </Box>
-
-      <CardContent
-        sx={{
-          textAlign: "center",
-          py: 3,
-        }}
-      >
-        <Typography variant="body2" color="text.secondary">
-          Actual
-        </Typography>
-
-        <Typography
-          variant="h3"
-          sx={{
-            fontWeight: 700,
-            my: 0.5,
-          }}
-        >
-          {currentStreak}
-        </Typography>
-
-        <Typography variant="body2" color="text.secondary">
-          dias
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-}
-
-export function BestStreak({ records }: Props) {
-  const bestStreak = calculateBestStreak(records);
-
-  return (
-    <Card
-      sx={{
-        flex: 1,
-        borderRadius: "0 14px 14px 0",
-        overflow: "hidden",
-        boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
-      }}
-    >
-      <Box
-        sx={{
-          backgroundColor: "#e6f7f7",
-          py: 1.5,
-          textAlign: "center",
-        }}
-      >
-        <Typography
-          variant="subtitle1"
-          sx={{
-            fontWeight: 700,
-            color: "#1B8585",
-          }}
-        >
-          Mejor Racha
-        </Typography>
-      </Box>
-
-      <CardContent
-        sx={{
-          textAlign: "center",
-          py: 3,
-        }}
-      >
-        <Typography
-          variant="h3"
-          sx={{
-            fontWeight: 700,
-            my: 0.5,
-          }}
-        >
-          {bestStreak}
-        </Typography>
-
-        <Typography variant="body2" color="text.secondary">
-          dias
-        </Typography>
-      </CardContent>
-    </Card>
-  );
-}
-
-export default function StreaksTittle({ records }: Props) {
   return (
     <Box sx={{ textAlign: "center" }}>
-      <Typography
-        variant="h5"
+      <Card
         sx={{
-          mb: 2,
-          fontWeight: 700,
-        }}
-      >
-        Rachas de hábitos
-      </Typography>
-
-      <Box
-        sx={{
-          display: "flex",
           width: "100%",
+          borderRadius: "14px",
+          overflow: "hidden",
+          boxShadow: "0 3px 10px rgba(0,0,0,0.08)",
         }}
       >
-        <StreakCard records={records} />
-        <BestStreak records={records} />
-      </Box>
+        <Box
+          sx={{
+            backgroundColor: "#e6f7f7",
+            py: 1.5,
+            textAlign: "center",
+          }}
+        >
+          <Typography
+            variant="subtitle1"
+            sx={{
+              fontWeight: 700,
+              color: "#1B8585",
+            }}
+          >
+            Rachas
+          </Typography>
+        </Box>
+
+        <CardContent
+          sx={{
+            display: "flex",
+            justifyContent: "space-around",
+            alignItems: "center",
+            py: 3,
+          }}
+        >
+          {/* DIARIA */}
+          <Box sx={{ flex: 1, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              Diaria
+            </Typography>
+
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 700,
+                my: 0.5,
+              }}
+            >
+              {dailyStreak}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary">
+              días
+            </Typography>
+          </Box>
+
+          {/* SEMANAL */}
+          <Box sx={{ flex: 1, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              Semanal
+            </Typography>
+
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 700,
+                my: 0.5,
+              }}
+            >
+              {weeklyStreak}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary">
+              semanas
+            </Typography>
+          </Box>
+
+          {/* MENSUAL */}
+          <Box sx={{ flex: 1, textAlign: "center" }}>
+            <Typography variant="body2" color="text.secondary">
+              Mensual
+            </Typography>
+
+            <Typography
+              variant="h3"
+              sx={{
+                fontWeight: 700,
+                my: 0.5,
+              }}
+            >
+              {monthlyStreak}
+            </Typography>
+
+            <Typography variant="body2" color="text.secondary">
+              meses
+            </Typography>
+          </Box>
+        </CardContent>
+      </Card>
     </Box>
   );
 }

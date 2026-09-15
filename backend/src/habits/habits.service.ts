@@ -17,12 +17,12 @@ export class HabitsService {
 
   async create(userId: string, dto: CreateHabitDto) {
     return this.habitModel.create({
-      name: dto.name,
-      description: dto.description,
-      category: dto.category,
-      frequency: dto.frequency,
-      priority: dto.priority,
-      startDate: new Date(dto.startDate),
+      name: dto.nombre,
+      description: dto.descripcion,
+      category: dto.categoria,
+      frequency: dto.frecuencia,
+      priority: dto.proridad,
+      startDate: new Date(dto.fechaInicio),
       userId,
     });
   }

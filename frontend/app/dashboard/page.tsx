@@ -168,68 +168,10 @@ export default function Dashboard() {
           </Alert>
         )}
 
-        {/* LISTS */}
+        {/* STREAKS */}
+        <StreaksTittle habits={habits} records={records} />
 
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              lg: "repeat(2, minmax(0, 1fr))",
-            },
-            gap: "24px",
-            width: "100%",
-          }}
-        >
-          {/* HÁBITOS PENDIENTES */}
-
-          <CheckBoxList
-            habits={activeHabits}
-            completedHabitIds={completedHabitIds}
-            onHabitCompleted={refreshDashboard}
-          />
-
-          {/* HÁBITOS COMPLETADOS */}
-
-          <InteractiveList
-            habits={activeHabits}
-            records={records}
-            onHabitDeleted={refreshDashboard}
-          />
-        </Box>
-
-        {/* STREAKS + PERCENTAGE */}
-
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              lg: "1fr 1fr",
-            },
-            gap: "24px",
-            alignItems: "center",
-          }}
-        >
-          <StreaksTittle records={records} />
-
-          <TitanicPie percentage={completionPercentage} />
-        </Box>
-
-        {/* GRAPHS */}
-
-        <Box
-          sx={{
-            display: "grid",
-            gridTemplateColumns: {
-              xs: "1fr",
-              lg: "1fr 1fr",
-            },
-            gap: "24px",
-          }}
-        >
-          <Charts habits={habits} />
-        </Box>
+        <Charts habits={habits} />
       </Box>
     </Box>
   );

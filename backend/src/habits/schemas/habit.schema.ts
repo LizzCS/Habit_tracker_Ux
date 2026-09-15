@@ -16,9 +16,12 @@ export class Habit {
 
   @Prop({
     required: true,
-    enum: ['diaria', 'semanal', 'anual'],
+    enum: ['diaria', 'semanal', 'mensual'],
   })
   frequency!: string;
+
+  @Prop({ required: true })
+  repeticiones!: number;
 
   @Prop({
     required: true,

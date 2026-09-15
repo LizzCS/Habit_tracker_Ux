@@ -120,3 +120,30 @@ button:hover {
   margin-bottom: 16px;
   color: #28d9d9;
 }
+
+/* Start Over*/
+
+/*Buttons*/
+.normalButton {
+}
+
+.importantButton {
+  background: #1b8585 !important;
+  color: #ffffff !important;
+  margin: 16px !important;
+  width: 150px !important;
+}
+
+.lesserButton {
+  color: #000000 !important;
+  border-color: #1b8585 !important;
+  margin: 16px !important;
+  width: 150px !important;
+}
+/*TextFields*/
+
+/*Tittle H1*/
+
+/*Tittle H2*/
+
+/*Body*/

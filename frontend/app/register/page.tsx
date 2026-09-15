@@ -9,6 +9,7 @@ import Button from "@mui/material/Button";
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
+import { registerSchema } from "../../lib/validaciones";
 
 import { apiFetch } from "../../lib/API";
 
@@ -25,12 +26,17 @@ export default function Register() {
 
   const handleRegister = async (e: React.FormEvent) => {
     e.preventDefault();
-
     setError("");
 
-    // Verificar que las contraseñas coincidan
-    if (password !== confirmPassword) {
-      setError("Las contraseñas no coinciden");
+    const result = registerSchema.safeParse({
+      name,
+      email,
+      password,
+      confirmpassword: confirmPassword,
+    });
+
+    if (!result.success) {
+      setError(result.error.issues[0].message);
       return;
     }
 
@@ -46,7 +52,6 @@ export default function Register() {
         }),
       });
 
-      // Registro exitoso → ir al login
       router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al registrarse");

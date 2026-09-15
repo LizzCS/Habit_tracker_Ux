@@ -25,7 +25,6 @@ export class AuthService {
   ) {}
 
   async register(dto: RegisterDto) {
-    // Check if email already exists
     const existingUser = await this.userModel
       .findOne({ email: dto.email })
       .exec();

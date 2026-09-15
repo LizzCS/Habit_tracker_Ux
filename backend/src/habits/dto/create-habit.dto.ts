@@ -2,6 +2,7 @@ import {
   IsDateString,
   IsEnum,
   IsNotEmpty,
+  IsNumber,
   IsOptional,
   IsString,
 } from 'class-validator';
@@ -9,22 +10,25 @@ import {
 export class CreateHabitDto {
   @IsString()
   @IsNotEmpty()
-  name!: string;
+  nombre!: string;
 
   @IsString()
   @IsOptional()
-  description?: string;
+  descripcion?: string;
 
   @IsString()
   @IsNotEmpty()
-  category!: string;
+  categoria!: string;
 
-  @IsEnum(['diaria', 'semanal', 'anual'])
-  frequency!: string;
+  @IsEnum(['diaria', 'semanal', 'mensual'])
+  frecuencia!: string;
+
+  @IsNumber()
+  repeticiones!: number;
 
   @IsEnum(['baja', 'media', 'alta'])
-  priority!: string;
+  proridad!: string;
 
   @IsDateString()
-  startDate!: string;
+  fechaInicio!: string;
 }

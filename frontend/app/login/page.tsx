@@ -34,11 +34,10 @@ export default function Login() {
         }),
       });
 
-      // Guardar JWT
-      localStorage.setItem("token", data.access_token);
+      sessionStorage.setItem("token", data.access_token);
 
-      localStorage.setItem("user", JSON.stringify(data.user));
-      // Ir al dashboard
+      sessionStorage.setItem("user", JSON.stringify(data.user));
+
       router.push("/dashboard");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al iniciar sesión");
@@ -224,7 +223,6 @@ export default function Login() {
           </form>
         </Box>
 
-        {/* RIGHT SIDE - WELCOME */}
         <Box
           sx={{
             width: "100%",

@@ -137,6 +137,8 @@ export default function HabitDialog({
             rows={2}
           />
 
+          {/*Cantidad de veces a realizar el hábito*/}
+
           {/* CATEGORÍA */}
 
           <TextField
@@ -204,7 +206,7 @@ export default function HabitDialog({
             >
               <MenuItem value="diaria">Diaria</MenuItem>
               <MenuItem value="semanal">Semanal</MenuItem>
-              <MenuItem value="anual">Anual</MenuItem>
+              <MenuItem value="mensual">Mensual</MenuItem>
             </TextField>
 
             <TextField

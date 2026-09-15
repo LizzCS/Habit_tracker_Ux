@@ -11,6 +11,12 @@ export class User {
   @Prop({ required: true, unique: true })
   email!: string;
 
+  @Prop({ required: true, default: 0 })
+  racha!: number;
+
+  @Prop({ required: true, default: 0 })
+  mejorRacha!: number;
+
   @Prop({ required: true })
   password!: string;
 

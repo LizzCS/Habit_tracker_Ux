@@ -21,7 +21,6 @@ const emptyForm: HabitForm = {
 export function useHabits() {
   const router = useRouter();
 
-  // State
   const [habits, setHabits] = React.useState<Habit[]>([]);
   const [selectedDate, setSelectedDate] = React.useState(new Date());
   const [currentMonth, setCurrentMonth] = React.useState(new Date());
