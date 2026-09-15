@@ -13,6 +13,7 @@ const emptyForm: HabitForm = {
   category: "",
   frequency: "diaria",
   priority: "media",
+  repeticiones: 1,
   startDate: "",
   endDate: "",
   active: true,
@@ -54,7 +55,7 @@ export function useHabits() {
 
   // Authentication
   React.useEffect(() => {
-    const token = localStorage.getItem("token");
+    const token = sessionStorage.getItem("token");
 
     if (!token) {
       router.push("/login");
@@ -157,6 +158,7 @@ export function useHabits() {
         ? formatDateForInput(new Date(habit.startDate))
         : "",
       endDate: habit.endDate ? formatDateForInput(new Date(habit.endDate)) : "",
+      repeticiones: habit.repeticiones,
       active: habit.active,
     });
 
@@ -180,6 +182,8 @@ export function useHabits() {
       setError("El nombre del hábito es obligatorio");
       return;
     }
+
+    console.log("FORM BEFORE SAVE:", form);
 
     try {
       setSaving(true);

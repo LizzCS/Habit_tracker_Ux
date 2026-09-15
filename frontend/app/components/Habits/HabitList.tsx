@@ -10,11 +10,15 @@ import {
   Chip,
   IconButton,
   Checkbox,
+  FormControl,
+  InputLabel,
+  Select,
+  MenuItem,
 } from "@mui/material";
 
 import { Delete, Edit } from "@mui/icons-material";
-
 import type { Habit } from "../../habits/types";
+
 type HabitListProps = {
   habits: Habit[];
   onEdit: (habit: Habit) => void;
@@ -26,6 +30,26 @@ export default function HabitList({
   onEdit,
   onDelete,
 }: HabitListProps) {
+  const [sortBy, setSortBy] = React.useState("priority");
+
+  const priorityOrder = {
+    alta: 1,
+    media: 2,
+    baja: 3,
+  };
+
+  const sortedHabits = [...habits].sort((a, b) => {
+    if (sortBy === "priority") {
+      return priorityOrder[a.priority] - priorityOrder[b.priority];
+    }
+
+    if (sortBy === "name") {
+      return a.name.localeCompare(b.name);
+    }
+
+    return 0;
+  });
+
   return (
     <Box
       sx={{
@@ -34,7 +58,24 @@ export default function HabitList({
         gap: 1.5,
       }}
     >
-      {habits.map((habit) => (
+      {/* SORT */}
+      <FormControl size="small" sx={{ width: 200 }}>
+        <InputLabel id="sort-label">Ordenar por</InputLabel>
+
+        <Select
+          labelId="sort-label"
+          value={sortBy}
+          label="Ordenar por"
+          onChange={(e) => setSortBy(e.target.value)}
+        >
+          <MenuItem value="priority">Prioridad</MenuItem>
+          <MenuItem value="name">Nombre</MenuItem>
+          <MenuItem value="none">Sin ordenar</MenuItem>
+        </Select>
+      </FormControl>
+
+      {/* HABITS */}
+      {sortedHabits.map((habit) => (
         <Card
           key={habit._id}
           sx={{
@@ -54,8 +95,6 @@ export default function HabitList({
               },
             }}
           >
-            {/* CHECKBOX */}
-
             <Checkbox
               sx={{
                 color: "#1B8585",
@@ -64,8 +103,6 @@ export default function HabitList({
                 },
               }}
             />
-
-            {/* HABIT INFO */}
 
             <Box
               sx={{
@@ -130,8 +167,6 @@ export default function HabitList({
               </Box>
             </Box>
 
-            {/* EDIT */}
-
             <IconButton
               onClick={() => onEdit(habit)}
               sx={{
@@ -140,8 +175,6 @@ export default function HabitList({
             >
               <Edit fontSize="small" />
             </IconButton>
-
-            {/* DELETE */}
 
             <IconButton
               onClick={() => onDelete(habit._id)}

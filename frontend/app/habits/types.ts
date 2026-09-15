@@ -5,6 +5,7 @@ export type Habit = {
   category?: string;
   frequency: "diaria" | "semanal" | "anual";
   priority: "baja" | "media" | "alta";
+  repeticiones: number;
   startDate?: string;
   endDate?: string;
   active: boolean;
@@ -17,6 +18,7 @@ export type HabitForm = {
   category: string;
   frequency: "diaria" | "semanal" | "anual";
   priority: "baja" | "media" | "alta";
+  repeticiones: number;
   startDate: string;
   endDate: string;
   active: boolean;

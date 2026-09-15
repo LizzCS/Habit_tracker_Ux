@@ -28,3 +28,16 @@ export const registerSchema = z
   .refine((data) => data.password === data.confirmpassword, {
     message: "Las contraseñas no coinciden",
   });
+
+export const loginSchema = z.object({
+  email: z
+    .string()
+    .email("Correo electrónico inválido")
+    .nonempty("El correo electrónico es obligatorio"),
+  password: z.string().nonempty("La contraseña es obligatoria"),
+});
+
+export const habitSchema = z.object({
+  name: z.string().min(1, "El nombre del hábito es obligatorio"),
+  repeticiones: z.number().min(1, "El número de repeticiones es obligatorio"),
+});

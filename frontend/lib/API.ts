@@ -3,7 +3,7 @@
 const API_URL = "http://localhost:3000";
 
 export async function apiFetch(endpoint: string, options: RequestInit = {}) {
-  const token = localStorage.getItem("token");
+  const token = sessionStorage.getItem("token");
 
   const headers = {
     "Content-Type": "application/json",

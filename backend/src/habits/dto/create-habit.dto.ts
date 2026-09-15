@@ -10,25 +10,29 @@ import {
 export class CreateHabitDto {
   @IsString()
   @IsNotEmpty()
-  nombre!: string;
+  name!: string;
 
   @IsString()
   @IsOptional()
-  descripcion?: string;
+  description?: string;
 
   @IsString()
   @IsNotEmpty()
-  categoria!: string;
+  category!: string;
 
   @IsEnum(['diaria', 'semanal', 'mensual'])
-  frecuencia!: string;
+  frequency!: string;
 
   @IsNumber()
   repeticiones!: number;
 
   @IsEnum(['baja', 'media', 'alta'])
-  proridad!: string;
+  priority!: string;
 
   @IsDateString()
-  fechaInicio!: string;
+  startDate!: string;
+
+  @IsDateString()
+  @IsOptional()
+  endDate?: string;
 }

@@ -187,7 +187,7 @@ export default function HabitDialog({
           )}
 
           {/* FRECUENCIA + PRIORIDAD */}
-
+          {/* FRECUENCIA + PRIORIDAD */}
           <Box
             sx={{
               display: "grid",
@@ -221,6 +221,19 @@ export default function HabitDialog({
             </TextField>
           </Box>
 
+          {/* REPETICIONES */}
+          <TextField
+            label="Cantidad de veces"
+            type="number"
+            value={form.repeticiones}
+            onChange={(e) => onChange("repeticiones", e.target.value)}
+            fullWidth
+            slotProps={{
+              htmlInput: {
+                min: 1,
+              },
+            }}
+          />
           {/* FECHAS */}
 
           <Box
