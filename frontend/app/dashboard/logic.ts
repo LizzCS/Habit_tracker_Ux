@@ -23,18 +23,21 @@ export async function loadHabits(): Promise<Habit[]> {
 export async function loadRecords(): Promise<HabitRecord[]> {
   return await apiFetch("/records");
 }
+
 export async function completeHabit(
   habitId: string,
   amount: number,
+  date: Date,
 ): Promise<HabitRecord> {
   return await apiFetch(`/records/${habitId}/complete`, {
     method: "POST",
-    body: JSON.stringify({
-      amount,
-    }),
     headers: {
       "Content-Type": "application/json",
     },
+    body: JSON.stringify({
+      amount,
+      date: date.toISOString(),
+    }),
   });
 }
 

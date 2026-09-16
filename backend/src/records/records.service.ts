@@ -83,17 +83,22 @@ export class RecordsService {
     };
   }
 
-  async completeHabit(userId: string, habitId: string, amount: number) {
-    const now = new Date();
+  async completeHabit(
+    userId: string,
+    habitId: string,
+    amount: number,
+    date: string,
+  ) {
+    const selectedDate = new Date(date);
+    selectedDate.setHours(0, 0, 0, 0);
 
-    const date = new Date(now);
-    date.setHours(0, 0, 0, 0);
+    console.log('Saving record with date:', selectedDate);
 
-    return this.recordModel.findOneAndUpdate(
+    const record = await this.recordModel.findOneAndUpdate(
       {
         habitId,
         userId,
-        date,
+        date: selectedDate,
       },
       {
         $inc: {
@@ -101,9 +106,13 @@ export class RecordsService {
         },
       },
       {
-        new: true,
+        returnDocument: 'after',
         upsert: true,
       },
     );
+
+    console.log('Record returned:', record);
+
+    return record;
   }
 }

@@ -18,19 +18,24 @@ import {
 
 import { Delete, Edit, Check } from "@mui/icons-material";
 import { updateRecord } from "../../habits/api";
+
 import type { Habit } from "../../habits/types";
 import type { HabitRecord } from "../../dashboard/types";
 
 type HabitListProps = {
   habits: Habit[];
   records: HabitRecord[];
+  selectedDate: Date;
+
   onEdit: (habit: Habit) => void;
   onDelete: (id: string) => void;
-  onComplete: (id: string, amount: number) => Promise<HabitRecord>;
+  onComplete: (id: string, amount: number, date: Date) => Promise<HabitRecord>;
 };
+
 export default function HabitList({
   habits,
   records,
+  selectedDate,
   onEdit,
   onDelete,
   onComplete,
@@ -43,29 +48,33 @@ export default function HabitList({
     media: 2,
     baja: 3,
   };
-
+  // Diario
   const getStartOfPeriod = (frequency: string) => {
-    const now = new Date();
+    const date = new Date(selectedDate);
 
     // Diario
     if (frequency === "diaria") {
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+      return new Date(date.getFullYear(), date.getMonth(), date.getDate());
     }
 
     // Semanal → lunes
     if (frequency === "semanal") {
-      const day = now.getDay();
+      const day = date.getDay();
       const diff = day === 0 ? 6 : day - 1;
 
-      return new Date(now.getFullYear(), now.getMonth(), now.getDate() - diff);
+      return new Date(
+        date.getFullYear(),
+        date.getMonth(),
+        date.getDate() - diff,
+      );
     }
 
     // Mensual → primer día
     if (frequency === "mensual") {
-      return new Date(now.getFullYear(), now.getMonth(), 1);
+      return new Date(date.getFullYear(), date.getMonth(), 1);
     }
 
-    return new Date(now.getFullYear(), now.getMonth(), now.getDate());
+    return new Date(date.getFullYear(), date.getMonth(), date.getDate());
   };
 
   const getProgress = (habit: Habit) => {
@@ -116,11 +125,12 @@ export default function HabitList({
     }
 
     try {
-      // Add the repetitions
-      const record = await onComplete(habit._id, amount);
+      // Add the repetitions for the selected calendar date
+      const record = await onComplete(habit._id, amount, selectedDate);
 
       const newProgress = progress + amount;
 
+      console.log("Selected date:", selectedDate);
       console.log("Previous progress:", progress);
       console.log("Amount added:", amount);
       console.log("New progress:", newProgress);
@@ -180,9 +190,6 @@ export default function HabitList({
         const progress = getProgress(habit);
 
         const completed = progress >= habit.repeticiones;
-
-        if (completed) {
-        }
 
         const remaining = Math.max(habit.repeticiones - progress, 0);
 

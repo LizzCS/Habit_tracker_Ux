@@ -77,10 +77,13 @@ export default function Habits() {
   // =========================
   // COMPLETE HABIT
   // =========================
-
-  const handleComplete = async (habitId: string, amount: number) => {
+  const handleComplete = async (
+    habitId: string,
+    amount: number,
+    date: Date,
+  ) => {
     try {
-      const record = await completeHabit(habitId, amount);
+      const record = await completeHabit(habitId, amount, date);
 
       await loadAllRecords();
 
@@ -307,17 +310,6 @@ export default function Habits() {
               >
                 {selectedDateText}
               </Typography>
-
-              <Typography
-                sx={{
-                  fontSize: "13px",
-                  color: "#6b7280",
-                  mt: 0.5,
-                }}
-              >
-                {selectedHabits.length}{" "}
-                {selectedHabits.length === 1 ? "hábito" : "hábitos"}
-              </Typography>
             </Box>
 
             <Button
@@ -408,6 +400,7 @@ export default function Habits() {
             <HabitList
               habits={selectedHabits}
               records={records}
+              selectedDate={selectedDate}
               onEdit={handleOpenEdit}
               onDelete={handleDelete}
               onComplete={handleComplete}

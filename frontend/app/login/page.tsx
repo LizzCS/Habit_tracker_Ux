@@ -35,7 +35,6 @@ export default function Login() {
       });
 
       sessionStorage.setItem("token", data.access_token);
-
       sessionStorage.setItem("user", JSON.stringify(data.user));
 
       router.push("/dashboard");

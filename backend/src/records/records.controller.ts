@@ -50,17 +50,23 @@ export class RecordsController {
   remove(@Param('id') id: string, @Req() req: any) {
     return this.recordsService.remove(id, req.user.sub);
   }
-
   @Post(':habitId/complete')
   completeHabit(
     @Param('habitId') habitId: string,
     @Body('amount') amount: number,
+    @Body('date') date: string,
     @Req() req: any,
   ) {
     console.log('habitId:', habitId);
     console.log('amount:', amount);
+    console.log('date:', date);
     console.log('userId:', req.user.sub);
 
-    return this.recordsService.completeHabit(req.user.sub, habitId, amount);
+    return this.recordsService.completeHabit(
+      req.user.sub,
+      habitId,
+      amount,
+      date,
+    );
   }
 }
