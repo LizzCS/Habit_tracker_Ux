@@ -1,4 +1,5 @@
 import { apiFetch } from "../../lib/API";
+import { HabitRecord } from "../dashboard/types";
 import type { Habit, HabitForm } from "./types";
 
 export async function getHabits(): Promise<Habit[]> {
@@ -42,5 +43,18 @@ export async function updateHabit(id: string, form: HabitForm) {
 export async function deleteHabit(id: string) {
   return await apiFetch(`/habits/${id}`, {
     method: "DELETE",
+  });
+}
+
+export async function updateRecord(
+  id: string,
+  data: { completed: boolean },
+): Promise<HabitRecord> {
+  return await apiFetch(`/records/${id}`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify(data),
   });
 }

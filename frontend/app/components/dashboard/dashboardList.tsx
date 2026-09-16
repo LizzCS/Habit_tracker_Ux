@@ -61,7 +61,7 @@ export default function CheckboxList({
     }
 
     // Hábito anual
-    if (habit.frequency === "anual") {
+    if (habit.frequency === "mensual") {
       if (!startDate) {
         return false;
       }

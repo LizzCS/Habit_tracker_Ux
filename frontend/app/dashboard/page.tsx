@@ -170,7 +170,6 @@ export default function Dashboard() {
 
         {/* STREAKS */}
         <StreaksTittle habits={habits} records={records} />
-
         <Charts habits={habits} />
       </Box>
     </Box>

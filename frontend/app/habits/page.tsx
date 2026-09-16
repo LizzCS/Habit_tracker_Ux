@@ -20,65 +20,99 @@ import Sidebar from "../components/sidebar";
 import { useHabits } from "./logic";
 
 import HabitList from "../components/Habits/HabitList";
+
 import HabitDialog from "../components/Habits/HabitDialog";
 
+import type { HabitRecord } from "../dashboard/types";
+
+import type { Habit } from "./types";
+
 import { getCalendarDays } from "./utils";
+
+import { loadRecords, completeHabit } from "../dashboard/logic";
 
 export default function Habits() {
   const {
     selectedDate,
     currentMonth,
     selectedHabits,
-
     loading,
     error,
-
     openDialog,
     saving,
     form,
     editingHabit,
-
     monthName,
     selectedDateText,
-
     setError,
-
     isSelected,
     isToday,
-
     selectDay,
     previousMonth,
     nextMonth,
-
     handleChange,
     handleOpenCreate,
     handleOpenEdit,
     handleCloseDialog,
-
     handleSave,
     handleDelete,
   } = useHabits();
+
+  // =========================
+  // RECORDS
+  // =========================
+
+  const [records, setRecords] = React.useState<HabitRecord[]>([]);
+
+  const loadAllRecords = async () => {
+    try {
+      const data = await loadRecords();
+
+      setRecords(data);
+    } catch (error) {
+      console.error("Error cargando registros:", error);
+    }
+  };
+
+  // =========================
+  // COMPLETE HABIT
+  // =========================
+
+  const handleComplete = async (habitId: string, amount: number) => {
+    try {
+      const record = await completeHabit(habitId, amount);
+
+      await loadAllRecords();
+
+      return record;
+    } catch (error) {
+      console.error("Error completando hábito:", error);
+      setError("No se pudo completar el hábito");
+      throw error;
+    }
+  };
+  // =========================
+  // LOAD RECORDS
+  // =========================
+
+  React.useEffect(() => {
+    loadAllRecords();
+  }, []);
 
   const calendarDays = getCalendarDays(currentMonth);
 
   return (
     <>
-      {/* SIDEBAR */}
-
       <Sidebar />
-
-      {/* MAIN CONTENT */}
 
       <Box
         sx={{
           minHeight: "100vh",
           backgroundColor: "#f7f9f9",
-
           marginLeft: {
             xs: 0,
             md: "240px",
           },
-
           p: {
             xs: 2,
             md: 4,
@@ -218,27 +252,19 @@ export default function Habits() {
                       onClick={() => selectDay(day)}
                       sx={{
                         minWidth: 0,
-
                         height: {
                           xs: 42,
                           md: 52,
                         },
-
                         borderRadius: "10px",
-
                         fontSize: "14px",
-
                         fontWeight: selected || today ? 700 : 500,
-
                         color: selected ? "#ffffff" : "#374151",
-
                         backgroundColor: selected ? "#1B8585" : "transparent",
-
                         border:
                           today && !selected
                             ? "2px solid #1B8585"
                             : "2px solid transparent",
-
                         "&:hover": {
                           backgroundColor: selected ? "#176f6f" : "#e6f7f7",
                         },
@@ -257,19 +283,15 @@ export default function Habits() {
           <Box
             sx={{
               display: "flex",
-
               alignItems: {
                 xs: "flex-start",
                 sm: "center",
               },
-
               justifyContent: "space-between",
-
               flexDirection: {
                 xs: "column",
                 sm: "row",
               },
-
               gap: 2,
               mb: 2,
             }}
@@ -308,7 +330,6 @@ export default function Habits() {
                 textTransform: "none",
                 fontWeight: 700,
                 px: 2,
-
                 "&:hover": {
                   backgroundColor: "#176f6f",
                 },
@@ -386,8 +407,10 @@ export default function Habits() {
           ) : (
             <HabitList
               habits={selectedHabits}
+              records={records}
               onEdit={handleOpenEdit}
               onDelete={handleDelete}
+              onComplete={handleComplete}
             />
           )}
         </Box>

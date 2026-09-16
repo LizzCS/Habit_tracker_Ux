@@ -17,5 +17,6 @@ export type HabitRecord = {
   habitId: string;
   userId: string;
   date: string;
+  amount: number;
   completed: boolean;
 };

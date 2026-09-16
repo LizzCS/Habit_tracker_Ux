@@ -1,22 +1,24 @@
 import {
-  Body,
   Controller,
-  Delete,
   Get,
-  Param,
-  Patch,
   Post,
-  Req,
+  Body,
+  Patch,
+  Param,
+  Delete,
   UseGuards,
+  Req,
 } from '@nestjs/common';
+import { ApiBearerAuth } from '@nestjs/swagger';
 
 import { RecordsService } from './records.service';
 import { CreateRecordDto } from './dto/create-record.dto';
 import { UpdateRecordDto } from './dto/update-record.dto';
 import { JwtAuthGuard } from '../auth/guards/jwt.guard';
 
-@Controller('records')
+@ApiBearerAuth()
 @UseGuards(JwtAuthGuard)
+@Controller('records')
 export class RecordsController {
   constructor(private readonly recordsService: RecordsService) {}
 
@@ -47,5 +49,18 @@ export class RecordsController {
   @Delete(':id')
   remove(@Param('id') id: string, @Req() req: any) {
     return this.recordsService.remove(id, req.user.sub);
+  }
+
+  @Post(':habitId/complete')
+  completeHabit(
+    @Param('habitId') habitId: string,
+    @Body('amount') amount: number,
+    @Req() req: any,
+  ) {
+    console.log('habitId:', habitId);
+    console.log('amount:', amount);
+    console.log('userId:', req.user.sub);
+
+    return this.recordsService.completeHabit(req.user.sub, habitId, amount);
   }
 }

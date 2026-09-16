@@ -17,10 +17,12 @@ import AnalyticsIcon from "@mui/icons-material/Analytics";
 import ExitToAppIcon from "@mui/icons-material/ExitToApp";
 import MenuIcon from "@mui/icons-material/Menu";
 import CloseIcon from "@mui/icons-material/Close";
+import Profile from "../components/profile/profile";
 
 export default function Sidebar() {
   const [mobileOpen, setMobileOpen] = useState(false);
   const [userName, setUserName] = useState("");
+  const [profileOpen, setProfileOpen] = useState(false);
 
   const router = useRouter();
 
@@ -144,7 +146,7 @@ export default function Sidebar() {
           variant="outlined"
           className="dashboardButton"
           startIcon={<AccountBoxIcon />}
-          onClick={() => navigateTo("/profile")}
+          onClick={() => setProfileOpen(true)}
         >
           Profile
         </Button>
@@ -269,6 +271,8 @@ export default function Sidebar() {
       >
         <MenuIcon />
       </IconButton>
+
+      <Profile open={profileOpen} onClose={() => setProfileOpen(false)} />
     </>
   );
 }

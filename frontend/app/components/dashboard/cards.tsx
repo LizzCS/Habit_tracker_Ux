@@ -14,21 +14,40 @@ type Props = {
 };
 
 export default function StreaksTitle({ habits, records }: Props) {
-  const dailyStreaks = habits
-    .filter((habit) => habit.frequency === "diaria")
-    .map((habit) => getHabitStreak(habit, records));
+  const streakTypes = [
+    {
+      frequency: "diaria",
+      label: "Diaria",
+      unit: "días",
+    },
+    {
+      frequency: "semanal",
+      label: "Semanal",
+      unit: "semanas",
+    },
+    {
+      frequency: "mensual",
+      label: "Mensual",
+      unit: "meses",
+    },
+  ] as const;
 
-  const weeklyStreaks = habits
-    .filter((habit) => habit.frequency === "semanal")
-    .map((habit) => getHabitStreak(habit, records));
+  const streaks = streakTypes.map((type) => {
+    const streaks = habits
+      .filter((habit) => habit.frequency === type.frequency)
+      .map((habit) => getHabitStreak(habit, records));
 
-  const monthlyStreaks = habits
-    .filter((habit) => habit.frequency === "mensual")
-    .map((habit) => getHabitStreak(habit, records));
+    return {
+      ...type,
+      streak: Math.max(0, ...streaks),
+    };
+  });
 
-  const dailyStreak = Math.max(0, ...dailyStreaks);
-  const weeklyStreak = Math.max(0, ...weeklyStreaks);
-  const monthlyStreak = Math.max(0, ...monthlyStreaks);
+  // Mejor racha entre todos los hábitos
+  const mejorRacha = Math.max(
+    0,
+    ...habits.map((habit) => getHabitStreak(habit, records)),
+  );
 
   return (
     <Box sx={{ textAlign: "center" }}>
@@ -54,10 +73,9 @@ export default function StreaksTitle({ habits, records }: Props) {
               color: "#1B8585",
             }}
           >
-            Rachas
-          </Typography>
+            Rachas{" "}
+          </Typography>{" "}
         </Box>
-
         <CardContent
           sx={{
             display: "flex",
@@ -66,10 +84,43 @@ export default function StreaksTitle({ habits, records }: Props) {
             py: 3,
           }}
         >
-          {/* DIARIA */}
-          <Box sx={{ flex: 1, textAlign: "center" }}>
+          {streaks.map((item) => (
+            <Box
+              key={item.frequency}
+              sx={{
+                flex: 1,
+                textAlign: "center",
+              }}
+            >
+              <Typography variant="body2" color="text.secondary">
+                {item.label}
+              </Typography>
+
+              <Typography
+                variant="h3"
+                sx={{
+                  fontWeight: 700,
+                  my: 0.5,
+                }}
+              >
+                {item.streak}
+              </Typography>
+
+              <Typography variant="body2" color="text.secondary">
+                {item.unit}
+              </Typography>
+            </Box>
+          ))}
+
+          {/* Mejor racha */}
+          <Box
+            sx={{
+              flex: 1,
+              textAlign: "center",
+            }}
+          >
             <Typography variant="body2" color="text.secondary">
-              Diaria
+              Mejor racha
             </Typography>
 
             <Typography
@@ -79,53 +130,11 @@ export default function StreaksTitle({ habits, records }: Props) {
                 my: 0.5,
               }}
             >
-              {dailyStreak}
+              {mejorRacha}
             </Typography>
 
             <Typography variant="body2" color="text.secondary">
-              días
-            </Typography>
-          </Box>
-
-          {/* SEMANAL */}
-          <Box sx={{ flex: 1, textAlign: "center" }}>
-            <Typography variant="body2" color="text.secondary">
-              Semanal
-            </Typography>
-
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                my: 0.5,
-              }}
-            >
-              {weeklyStreak}
-            </Typography>
-
-            <Typography variant="body2" color="text.secondary">
-              semanas
-            </Typography>
-          </Box>
-
-          {/* MENSUAL */}
-          <Box sx={{ flex: 1, textAlign: "center" }}>
-            <Typography variant="body2" color="text.secondary">
-              Mensual
-            </Typography>
-
-            <Typography
-              variant="h3"
-              sx={{
-                fontWeight: 700,
-                my: 0.5,
-              }}
-            >
-              {monthlyStreak}
-            </Typography>
-
-            <Typography variant="body2" color="text.secondary">
-              meses
+              períodos
             </Typography>
           </Box>
         </CardContent>

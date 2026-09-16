@@ -35,10 +35,6 @@ export default function InteractiveList({
   records,
   onHabitDeleted,
 }: Props) {
-  /*
-   * Solo dejamos los hábitos que tienen
-   * un Record completado correspondiente a HOY.
-   */
   const completedHabits = habits.filter((habit) =>
     records.some((record) => {
       if (!record.completed) return false;

@@ -18,3 +18,7 @@ personales.
 - **Frontend:** Web
 
 ---
+
+## Instalación
+
+Primeramente tiene que instalar las librerias de NestJS y Next.js utilizando lo siguiente:

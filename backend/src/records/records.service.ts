@@ -82,4 +82,28 @@ export class RecordsService {
       record,
     };
   }
+
+  async completeHabit(userId: string, habitId: string, amount: number) {
+    const now = new Date();
+
+    const date = new Date(now);
+    date.setHours(0, 0, 0, 0);
+
+    return this.recordModel.findOneAndUpdate(
+      {
+        habitId,
+        userId,
+        date,
+      },
+      {
+        $inc: {
+          amount: amount,
+        },
+      },
+      {
+        new: true,
+        upsert: true,
+      },
+    );
+  }
 }

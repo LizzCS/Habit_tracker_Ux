@@ -24,6 +24,9 @@ export class Record {
 
   @Prop({ default: false })
   completed!: boolean;
+
+  @Prop({ default: 0 })
+  amount!: number;
 }
 
 export const RecordSchema = SchemaFactory.createForClass(Record);
