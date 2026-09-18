@@ -9,7 +9,7 @@ import { BarChart } from "@mui/x-charts/BarChart";
 
 import { apiFetch } from "../../../lib/API";
 
-import type { Habit } from "../../dashboard/types";
+import type { Habit } from "../../../forms/HabitForm";
 
 type Record = {
   _id: string;

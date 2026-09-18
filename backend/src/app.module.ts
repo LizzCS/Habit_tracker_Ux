@@ -9,6 +9,7 @@ import { AuthModule } from './auth/auth.module';
 import { HabitsModule } from './habits/habits.module';
 import { UsersModule } from './users/users.module';
 import { RecordsModule } from './records/records.module';
+import { StatisticsModule } from './statistics/statistics.module';
 
 @Module({
   imports: [
@@ -28,6 +29,7 @@ import { RecordsModule } from './records/records.module';
     HabitsModule,
     UsersModule,
     RecordsModule,
+    StatisticsModule,
   ],
 
   controllers: [AppController],

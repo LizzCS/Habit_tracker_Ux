@@ -28,16 +28,12 @@ export class UsersService {
       throw new ConflictException('El correo ya está registrado');
     }
 
-    const user = new this.userModel({
-      name: createUserDto.name,
-      email: createUserDto.email,
+    return this.userModel.create({
+      ...createUserDto,
       racha: 0,
       mejorRacha: 0,
-      password: createUserDto.password,
       salt: '',
     });
-
-    return user.save();
   }
 
   async findAll() {
@@ -87,5 +83,13 @@ export class UsersService {
       message: 'Usuario eliminado correctamente',
       user,
     };
+  }
+
+  async updateRacha(id: string) {
+    return this.userModel.findByIdAndUpdate(
+      id,
+      { $inc: { racha: 1 } },
+      { new: true },
+    );
   }
 }

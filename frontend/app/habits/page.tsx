@@ -23,13 +23,13 @@ import HabitList from "../components/Habits/HabitList";
 
 import HabitDialog from "../components/Habits/HabitDialog";
 
-import type { HabitRecord } from "../dashboard/types";
-
-import type { Habit } from "./types";
+import type { RecordForm } from "../../forms/RecordForm";
 
 import { getCalendarDays } from "./utils";
 
-import { loadRecords, completeHabit } from "../dashboard/logic";
+import { completeHabit } from "../dashboard/logic";
+
+import { getRecords } from "../../services/records.services";
 
 export default function Habits() {
   const {
@@ -62,11 +62,11 @@ export default function Habits() {
   // RECORDS
   // =========================
 
-  const [records, setRecords] = React.useState<HabitRecord[]>([]);
+  const [records, setRecords] = React.useState<RecordForm[]>([]);
 
   const loadAllRecords = async () => {
     try {
-      const data = await loadRecords();
+      const data = await getRecords();
 
       setRecords(data);
     } catch (error) {

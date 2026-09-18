@@ -1,22 +1,15 @@
-"use client";
-
 import Box from "@mui/material/Box";
 import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemAvatar from "@mui/material/ListItemAvatar";
 import ListItemText from "@mui/material/ListItemText";
 import Avatar from "@mui/material/Avatar";
-import IconButton from "@mui/material/IconButton";
 import Typography from "@mui/material/Typography";
-
-import DeleteIcon from "@mui/icons-material/Delete";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
 
-import { apiFetch } from "../../../lib/API";
+import type { Habit } from "../../../forms/HabitForm";
 
-import type { Habit } from "../../dashboard/types";
-
-type HabitRecord = {
+type RecordForm = {
   _id: string;
   habitId: string;
   userId: string;
@@ -26,14 +19,15 @@ type HabitRecord = {
 
 type Props = {
   habits: Habit[];
-  records: HabitRecord[];
+  records: RecordForm[];
+  selectedDate: Date;
   onHabitDeleted: () => void;
 };
 
 export default function InteractiveList({
   habits,
   records,
-  onHabitDeleted,
+  selectedDate,
 }: Props) {
   const completedHabits = habits.filter((habit) =>
     records.some((record) => {
@@ -42,31 +36,14 @@ export default function InteractiveList({
       if (record.habitId !== habit._id) return false;
 
       const recordDate = new Date(record.date);
-      const today = new Date();
 
       return (
-        recordDate.getFullYear() === today.getFullYear() &&
-        recordDate.getMonth() === today.getMonth() &&
-        recordDate.getDate() === today.getDate()
+        recordDate.getFullYear() === selectedDate.getFullYear() &&
+        recordDate.getMonth() === selectedDate.getMonth() &&
+        recordDate.getDate() === selectedDate.getDate()
       );
     }),
   );
-
-  const handleDelete = async (id: string) => {
-    const confirmed = window.confirm("¿Quieres eliminar este hábito?");
-
-    if (!confirmed) return;
-
-    try {
-      await apiFetch(`/habits/${id}`, {
-        method: "DELETE",
-      });
-
-      onHabitDeleted();
-    } catch (error) {
-      console.error("No se pudo eliminar el hábito", error);
-    }
-  };
 
   return (
     <Box
@@ -116,7 +93,7 @@ export default function InteractiveList({
             color: "#1B8585",
           }}
         >
-          Hábitos completados hoy
+          Hábitos completados
         </Typography>
       </Box>
 
@@ -148,7 +125,7 @@ export default function InteractiveList({
               mt: 5,
             }}
           >
-            No has completado ningún hábito hoy.
+            No has completado ningún hábito en esta fecha.
           </Typography>
         ) : (
           <List sx={{ p: 0 }}>
@@ -159,21 +136,6 @@ export default function InteractiveList({
                   mb: 0.5,
                   borderRadius: "10px",
                 }}
-                secondaryAction={
-                  <IconButton
-                    edge="end"
-                    size="small"
-                    onClick={() => handleDelete(habit._id)}
-                    sx={{
-                      color: "#9ca3af",
-                      "&:hover": {
-                        color: "#dc2626",
-                      },
-                    }}
-                  >
-                    <DeleteIcon fontSize="small" />
-                  </IconButton>
-                }
               >
                 {/* CHECK ICON */}
                 <ListItemAvatar

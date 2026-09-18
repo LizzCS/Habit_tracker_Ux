@@ -3,8 +3,13 @@
 import * as React from "react";
 import { useRouter } from "next/navigation";
 
-import type { Habit, HabitForm } from "./types";
-import { getHabits, createHabit, updateHabit, deleteHabit } from "./api";
+import type { Habit, HabitForm } from "../../forms/HabitForm";
+import {
+  getHabits,
+  createHabit,
+  updateHabit,
+  deleteHabit,
+} from "../../services/habit.services";
 import { formatDateForInput, isSameDay } from "./utils";
 
 const emptyForm: HabitForm = {

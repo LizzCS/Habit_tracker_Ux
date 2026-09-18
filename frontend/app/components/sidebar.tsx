@@ -27,7 +27,7 @@ export default function Sidebar() {
   const router = useRouter();
 
   useEffect(() => {
-    const storedUser = localStorage.getItem("user");
+    const storedUser = sessionStorage.getItem("user");
 
     if (!storedUser) {
       return;
@@ -52,7 +52,8 @@ export default function Sidebar() {
   };
 
   const handleLogout = () => {
-    localStorage.removeItem("token");
+    sessionStorage.removeItem("token");
+    sessionStorage.removeItem("user");
 
     router.push("/login");
     setMobileOpen(false);
@@ -60,8 +61,6 @@ export default function Sidebar() {
 
   const drawerContent = (
     <>
-      {/* MOBILE CLOSE BUTTON */}
-
       <Box
         sx={{
           display: {
@@ -81,8 +80,6 @@ export default function Sidebar() {
           <CloseIcon />
         </IconButton>
       </Box>
-
-      {/* PROFILE */}
 
       <Box
         sx={{
@@ -119,8 +116,6 @@ export default function Sidebar() {
         </p>
       </Box>
 
-      {/* NAVIGATION */}
-
       <Box
         sx={{
           display: "flex",
@@ -129,8 +124,6 @@ export default function Sidebar() {
           padding: "0 30px",
         }}
       >
-        {/* DASHBOARD */}
-
         <Button
           variant="outlined"
           className="dashboardButton"
@@ -139,8 +132,6 @@ export default function Sidebar() {
         >
           Dashboard
         </Button>
-
-        {/* PROFILE */}
 
         <Button
           variant="outlined"
@@ -151,8 +142,6 @@ export default function Sidebar() {
           Profile
         </Button>
 
-        {/* LISTA */}
-
         <Button
           variant="outlined"
           className="dashboardButton"
@@ -161,8 +150,6 @@ export default function Sidebar() {
         >
           Lista
         </Button>
-
-        {/* EVALUACION */}
 
         <Button
           variant="outlined"
@@ -184,8 +171,6 @@ export default function Sidebar() {
           }}
         />
 
-        {/* LOGOUT */}
-
         <Button
           variant="outlined"
           className="logOutButton"
@@ -200,8 +185,6 @@ export default function Sidebar() {
 
   return (
     <>
-      {/* DESKTOP SIDEBAR */}
-
       <Drawer
         variant="permanent"
         anchor="left"
@@ -219,9 +202,6 @@ export default function Sidebar() {
       >
         {drawerContent}
       </Drawer>
-
-      {/* MOBILE SIDEBAR */}
-
       <Drawer
         variant="temporary"
         anchor="left"
@@ -248,9 +228,6 @@ export default function Sidebar() {
       >
         {drawerContent}
       </Drawer>
-
-      {/* MOBILE MENU BUTTON */}
-
       <IconButton
         onClick={handleDrawerToggle}
         sx={{

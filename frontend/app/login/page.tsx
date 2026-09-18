@@ -11,6 +11,8 @@ import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import { apiFetch } from "../../lib/API";
 
+import { loginUser } from "../../services/user.services";
+
 export default function Login() {
   const router = useRouter();
 
@@ -26,13 +28,7 @@ export default function Login() {
     setLoading(true);
 
     try {
-      const data = await apiFetch("/auth/login", {
-        method: "POST",
-        body: JSON.stringify({
-          email,
-          password,
-        }),
-      });
+      const data = await loginUser(email, password);
 
       sessionStorage.setItem("token", data.access_token);
       sessionStorage.setItem("user", JSON.stringify(data.user));

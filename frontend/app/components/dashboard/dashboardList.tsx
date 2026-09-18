@@ -13,72 +13,94 @@ import LinearProgress from "@mui/material/LinearProgress";
 
 import { apiFetch } from "../../../lib/API";
 
-import type { Habit } from "../../dashboard/types";
+import type { Habit } from "../../../forms/HabitForm";
+import type { RecordForm } from "../../../forms/RecordForm";
 
-interface CheckboxListProps {
+type CheckboxListProps = {
   habits: Habit[];
-  completedHabitIds: string[];
-  onHabitCompleted: () => void;
-}
+  records: RecordForm[];
+  selectedDate: Date;
+  onHabitDeleted?: () => void;
+};
 
-export default function CheckboxList({
+export default function CheckBoxList({
   habits,
-  completedHabitIds,
-  onHabitCompleted,
+  records,
+  selectedDate,
 }: CheckboxListProps) {
   const [savingId, setSavingId] = React.useState<string | null>(null);
 
-  // Obtener solamente los hábitos que corresponden a hoy
-  const habitsForToday = habits.filter((habit) => {
+  // Hábitos que corresponden a la fecha seleccionada
+  const habitsForSelectedDate = habits.filter((habit) => {
     if (!habit.active) {
       return false;
     }
 
-    const today = new Date();
+    const selected = new Date(selectedDate);
+    selected.setHours(0, 0, 0, 0);
 
     const startDate = habit.startDate ? new Date(habit.startDate) : null;
 
     const endDate = habit.endDate ? new Date(habit.endDate) : null;
 
-    // El hábito todavía no ha comenzado
-    if (startDate && today < startDate) {
-      return false;
+    if (startDate) {
+      startDate.setHours(0, 0, 0, 0);
+
+      if (selected < startDate) {
+        return false;
+      }
     }
 
-    // El hábito ya terminó
-    if (endDate && today > endDate) {
-      return false;
+    if (endDate) {
+      endDate.setHours(0, 0, 0, 0);
+
+      if (selected > endDate) {
+        return false;
+      }
     }
 
-    // Hábito diario
     if (habit.frequency === "diaria") {
       return true;
     }
 
-    // Hábito semanal
     if (habit.frequency === "semanal") {
-      return startDate !== null && today.getDay() === startDate.getDay();
+      return startDate !== null && selected.getDay() === startDate.getDay();
     }
 
-    // Hábito anual
     if (habit.frequency === "mensual") {
       if (!startDate) {
         return false;
       }
 
-      return (
-        today.getMonth() === startDate.getMonth() &&
-        today.getDate() === startDate.getDate()
-      );
+      return selected.getDate() === startDate.getDate();
     }
 
     return false;
   });
 
+  // Registros completados en la fecha seleccionada
+  const completedHabitIds = records
+    .filter((record) => {
+      if (!record.completed) {
+        return false;
+      }
+
+      const recordDate = new Date(record.date);
+
+      return (
+        recordDate.getFullYear() === selectedDate.getFullYear() &&
+        recordDate.getMonth() === selectedDate.getMonth() &&
+        recordDate.getDate() === selectedDate.getDate()
+      );
+    })
+    .map((record) => record.habitId);
+
   const handleToggle = async (habit: Habit) => {
     const isCompleted = completedHabitIds.includes(habit._id);
 
-    if (isCompleted) return;
+    if (isCompleted) {
+      return;
+    }
 
     try {
       setSavingId(habit._id);
@@ -87,12 +109,13 @@ export default function CheckboxList({
         method: "POST",
         body: JSON.stringify({
           habitId: habit._id,
-          date: new Date().toISOString(),
+          date: selectedDate.toISOString(),
           completed: true,
         }),
+        headers: {
+          "Content-Type": "application/json",
+        },
       });
-
-      onHabitCompleted();
     } catch (error) {
       console.error("No se pudo completar el hábito:", error);
     } finally {
@@ -139,7 +162,7 @@ export default function CheckboxList({
             fontWeight: 700,
           }}
         >
-          {habitsForToday.length}
+          {habitsForSelectedDate.length}
         </Box>
 
         <Typography
@@ -173,7 +196,7 @@ export default function CheckboxList({
         }}
       >
         <List sx={{ p: 0 }}>
-          {habitsForToday.length === 0 ? (
+          {habitsForSelectedDate.length === 0 ? (
             <Typography
               sx={{
                 textAlign: "center",
@@ -185,7 +208,7 @@ export default function CheckboxList({
               No tienes hábitos pendientes
             </Typography>
           ) : (
-            habitsForToday.map((habit) => {
+            habitsForSelectedDate.map((habit) => {
               const isCompleted = completedHabitIds.includes(habit._id);
 
               const progress = isCompleted ? 100 : 0;

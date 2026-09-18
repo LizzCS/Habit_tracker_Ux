@@ -18,7 +18,7 @@ import {
   Typography,
 } from "@mui/material";
 
-import type { HabitForm } from "../../habits/types";
+import type { HabitForm } from "../../../forms/HabitForm";
 
 type HabitDialogProps = {
   open: boolean;

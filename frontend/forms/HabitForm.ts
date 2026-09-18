@@ -12,11 +12,14 @@ export type Habit = {
   userId: string;
 };
 
-export type HabitRecord = {
-  _id: string;
-  habitId: string;
-  userId: string;
-  date: string;
-  amount: number;
-  completed: boolean;
+export type HabitForm = {
+  name: string;
+  description: string;
+  category: string;
+  frequency: "diaria" | "semanal" | "mensual";
+  priority: "baja" | "media" | "alta";
+  repeticiones: number;
+  startDate: string;
+  endDate: string;
+  active: boolean;
 };

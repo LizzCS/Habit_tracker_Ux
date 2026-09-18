@@ -17,12 +17,7 @@ export class HabitsService {
 
   async create(userId: string, dto: CreateHabitDto) {
     return this.habitModel.create({
-      name: dto.name,
-      description: dto.description,
-      category: dto.category,
-      frequency: dto.frequency,
-      priority: dto.priority,
-      repeticiones: dto.repeticiones,
+      ...dto,
       startDate: new Date(dto.startDate),
       endDate: dto.endDate ? new Date(dto.endDate) : undefined,
       userId,
@@ -57,7 +52,8 @@ export class HabitsService {
         },
         updateHabitDto,
         {
-          new: true,
+          returnDocument: 'after',
+          runValidators: true,
         },
       )
       .exec();

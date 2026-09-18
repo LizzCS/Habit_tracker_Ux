@@ -23,13 +23,14 @@ import {
   getCompletionPercentage,
 } from "./logic";
 
-import type { Habit, HabitRecord } from "./types";
+import type { Habit } from "../../forms/HabitForm";
+import type { RecordForm } from "../../forms/RecordForm";
 
 export default function Dashboard() {
   const router = useRouter();
 
   const [habits, setHabits] = useState<Habit[]>([]);
-  const [records, setRecords] = useState<HabitRecord[]>([]);
+  const [records, setRecords] = useState<RecordForm[]>([]);
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
@@ -46,7 +47,7 @@ export default function Dashboard() {
       if (err instanceof Error) {
         setError(err.message);
       } else {
-        setError("No se pudieron cargar los datos del dashboard");
+        setError("No se pudieron cargar los datos dezl dashboard");
       }
     }
   };
@@ -142,7 +143,6 @@ export default function Dashboard() {
         }}
       >
         {/* HEADER */}
-
         <Box sx={{ width: "100%" }}>
           <Typography
             variant="h4"
@@ -159,17 +159,14 @@ export default function Dashboard() {
             Dashboard
           </Typography>
         </Box>
-
         {/* ERROR */}
-
         {error && (
           <Alert severity="error" onClose={() => setError("")}>
             {error}
           </Alert>
         )}
-
         {/* STREAKS */}
-        <StreaksTittle habits={habits} records={records} />
+        <StreaksTittle />
         <Charts habits={habits} />
       </Box>
     </Box>

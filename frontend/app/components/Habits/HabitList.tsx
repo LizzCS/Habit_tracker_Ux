@@ -17,19 +17,21 @@ import {
 } from "@mui/material";
 
 import { Delete, Edit, Check } from "@mui/icons-material";
-import { updateRecord } from "../../habits/api";
 
-import type { Habit } from "../../habits/types";
-import type { HabitRecord } from "../../dashboard/types";
+import { Habit } from "../../../forms/HabitForm";
+
+import { RecordForm } from "../../../forms/RecordForm";
+
+import { updateRecord } from "../../../services/records.services";
 
 type HabitListProps = {
   habits: Habit[];
-  records: HabitRecord[];
+  records: RecordForm[];
   selectedDate: Date;
 
   onEdit: (habit: Habit) => void;
   onDelete: (id: string) => void;
-  onComplete: (id: string, amount: number, date: Date) => Promise<HabitRecord>;
+  onComplete: (id: string, amount: number, date: Date) => Promise<RecordForm>;
 };
 
 export default function HabitList({

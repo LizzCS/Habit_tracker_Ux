@@ -11,7 +11,7 @@ import Typography from "@mui/material/Typography";
 import Divider from "@mui/material/Divider";
 import { registerSchema } from "../../lib/validaciones";
 
-import { apiFetch } from "../../lib/API";
+import { registerUser } from "../../services/user.services";
 
 export default function Register() {
   const router = useRouter();
@@ -43,15 +43,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      await apiFetch("/auth/register", {
-        method: "POST",
-        body: JSON.stringify({
-          name,
-          email,
-          password,
-        }),
-      });
-
+      registerUser(name, email, password);
       router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al registrarse");

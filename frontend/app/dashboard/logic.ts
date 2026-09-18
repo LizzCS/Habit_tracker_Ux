@@ -1,6 +1,11 @@
 import { apiFetch } from "../../lib/API";
 
-import type { Habit, HabitRecord } from "./types";
+import type { Habit } from "../../forms/HabitForm";
+
+import type { RecordForm } from "../../forms/RecordForm";
+
+import { getHabits } from "../../services/habit.services";
+import { getRecords } from "../../services/records.services";
 
 import {
   isSameDay,
@@ -16,19 +21,12 @@ import {
 // API
 // =========================
 
-export async function loadHabits(): Promise<Habit[]> {
-  return await apiFetch("/habits");
-}
-
-export async function loadRecords(): Promise<HabitRecord[]> {
-  return await apiFetch("/records");
-}
-
+//API TECNICALLY
 export async function completeHabit(
   habitId: string,
   amount: number,
   date: Date,
-): Promise<HabitRecord> {
+): Promise<RecordForm> {
   return await apiFetch(`/records/${habitId}/complete`, {
     method: "POST",
     headers: {
@@ -42,7 +40,7 @@ export async function completeHabit(
 }
 
 export async function loadDashboard() {
-  const [habits, records] = await Promise.all([loadHabits(), loadRecords()]);
+  const [habits, records] = await Promise.all([getHabits(), getRecords()]);
 
   return {
     habits,
@@ -58,11 +56,11 @@ export function getActiveHabits(habits: Habit[]) {
   return habits.filter((habit) => habit.active);
 }
 
-export function getCompletedTodayRecords(records: HabitRecord[]) {
+export function getCompletedTodayRecords(records: RecordForm[]) {
   return records.filter((record) => record.completed && isToday(record.date));
 }
 
-export function getCompletedHabitIds(records: HabitRecord[]) {
+export function getCompletedHabitIds(records: RecordForm[]) {
   return records
     .filter((record) => record.completed)
     .map((record) => record.habitId);
@@ -76,7 +74,7 @@ export function getCompletionPercentage(completed: number, active: number) {
   return Math.round((completed / active) * 100);
 }
 
-export function getDailyStreak(records: HabitRecord[]) {
+export function getDailyStreak(records: RecordForm[]) {
   const completedDates = new Set(
     records
       .filter((record) => record.completed)
@@ -94,7 +92,7 @@ export function getDailyStreak(records: HabitRecord[]) {
   return streak;
 }
 
-export function getWeeklyStreak(records: HabitRecord[]) {
+export function getWeeklyStreak(records: RecordForm[]) {
   const completedWeeks = new Set(
     records
       .filter((record) => record.completed)
@@ -120,7 +118,7 @@ export function getWeeklyStreak(records: HabitRecord[]) {
   return streak;
 }
 
-export function getMonthlyStreak(records: HabitRecord[]) {
+export function getMonthlyStreak(records: RecordForm[]) {
   const completedMonths = new Set(
     records
       .filter((record) => record.completed)
@@ -142,18 +140,18 @@ export function getMonthlyStreak(records: HabitRecord[]) {
   return streak;
 }
 
-export function getHabitStreak(habit: Habit, records: HabitRecord[]) {
-  const habitRecords = records.filter((record) => record.habitId === habit._id);
+export function getHabitStreak(habit: Habit, records: RecordForm[]) {
+  const RecordForms = records.filter((record) => record.habitId === habit._id);
 
   switch (habit.frequency) {
     case "diaria":
-      return getDailyStreak(habitRecords);
+      return getDailyStreak(RecordForms);
 
     case "semanal":
-      return getWeeklyStreak(habitRecords);
+      return getWeeklyStreak(RecordForms);
 
     case "mensual":
-      return getMonthlyStreak(habitRecords);
+      return getMonthlyStreak(RecordForms);
 
     default:
       return 0;

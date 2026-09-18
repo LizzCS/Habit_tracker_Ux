@@ -1,52 +1,89 @@
 "use client";
 
+import { useEffect, useState } from "react";
+
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
+import CircularProgress from "@mui/material/CircularProgress";
 
-import type { Habit, HabitRecord } from "../../dashboard/types";
-import { getHabitStreak } from "../../dashboard/logic";
+import {
+  getDailyStreak,
+  getWeeklyStreak,
+  getMonthlyStreak,
+} from "../../../services/statistics.services";
 
-type Props = {
-  habits: Habit[];
-  records: HabitRecord[];
+type Streak = {
+  currentStreak: number;
+  bestStreak: number;
 };
 
-export default function StreaksTitle({ habits, records }: Props) {
-  const streakTypes = [
+export default function StreaksTitle() {
+  const [daily, setDaily] = useState<Streak | null>(null);
+  const [weekly, setWeekly] = useState<Streak | null>(null);
+  const [monthly, setMonthly] = useState<Streak | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function loadStreaks() {
+      try {
+        const [dailyData, weeklyData, monthlyData] = await Promise.all([
+          getDailyStreak(),
+          getWeeklyStreak(),
+          getMonthlyStreak(),
+        ]);
+
+        setDaily(dailyData);
+        setWeekly(weeklyData);
+        setMonthly(monthlyData);
+      } catch (error) {
+        console.error("Error loading streaks:", error);
+      } finally {
+        setLoading(false);
+      }
+    }
+
+    loadStreaks();
+  }, []);
+
+  if (loading) {
+    return (
+      <Box
+        sx={{
+          width: "100%",
+          display: "flex",
+          justifyContent: "center",
+          py: 4,
+        }}
+      >
+        <CircularProgress />
+      </Box>
+    );
+  }
+
+  const streaks = [
     {
-      frequency: "diaria",
       label: "Diaria",
       unit: "días",
+      streak: daily?.currentStreak ?? 0,
     },
     {
-      frequency: "semanal",
       label: "Semanal",
       unit: "semanas",
+      streak: weekly?.currentStreak ?? 0,
     },
     {
-      frequency: "mensual",
       label: "Mensual",
       unit: "meses",
+      streak: monthly?.currentStreak ?? 0,
     },
-  ] as const;
+  ];
 
-  const streaks = streakTypes.map((type) => {
-    const streaks = habits
-      .filter((habit) => habit.frequency === type.frequency)
-      .map((habit) => getHabitStreak(habit, records));
-
-    return {
-      ...type,
-      streak: Math.max(0, ...streaks),
-    };
-  });
-
-  // Mejor racha entre todos los hábitos
   const mejorRacha = Math.max(
-    0,
-    ...habits.map((habit) => getHabitStreak(habit, records)),
+    daily?.bestStreak ?? 0,
+    weekly?.bestStreak ?? 0,
+    monthly?.bestStreak ?? 0,
   );
 
   return (
@@ -73,9 +110,10 @@ export default function StreaksTitle({ habits, records }: Props) {
               color: "#1B8585",
             }}
           >
-            Rachas{" "}
-          </Typography>{" "}
+            Rachas
+          </Typography>
         </Box>
+
         <CardContent
           sx={{
             display: "flex",
@@ -86,7 +124,7 @@ export default function StreaksTitle({ habits, records }: Props) {
         >
           {streaks.map((item) => (
             <Box
-              key={item.frequency}
+              key={item.label}
               sx={{
                 flex: 1,
                 textAlign: "center",
@@ -112,7 +150,6 @@ export default function StreaksTitle({ habits, records }: Props) {
             </Box>
           ))}
 
-          {/* Mejor racha */}
           <Box
             sx={{
               flex: 1,
