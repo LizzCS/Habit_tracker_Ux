@@ -27,10 +27,6 @@ export class StatisticsService {
     private userModel: Model<UserDocument>,
   ) {}
 
-  // =========================================================
-  // DATE FUNCTIONS
-  // =========================================================
-
   private periodStart(date: Date, period: Period): Date {
     const y = date.getUTCFullYear();
     const m = date.getUTCMonth();
@@ -72,10 +68,6 @@ export class StatisticsService {
       end: this.shift(start, period, 1),
     };
   }
-
-  // =========================================================
-  // HABIT COMPLETION
-  // =========================================================
 
   async getHabitCompletion(userId: string, period: Period) {
     const { start, end } = this.range(period);
@@ -148,10 +140,6 @@ export class StatisticsService {
     };
   }
 
-  // =========================================================
-  // INDIVIDUAL HABIT COMPLETION FUNCTIONS
-  // =========================================================
-
   async getDailyCompletion(userId: string) {
     return this.getHabitCompletion(userId, 'day');
   }
@@ -164,19 +152,11 @@ export class StatisticsService {
     return this.getHabitCompletion(userId, 'month');
   }
 
-  // =========================================================
-  // STREAK
-  // =========================================================
-
   async getStreak(userId: string, period: Period) {
-    console.log('STATISTICS USER ID:', userId);
-
     const records = await this.recordModel.find({
       userId: new Types.ObjectId(userId),
       completed: true,
     });
-
-    console.log('COMPLETED RECORDS:', records);
 
     const buckets: { _id: Date }[] = await this.recordModel.aggregate([
       {
@@ -199,21 +179,13 @@ export class StatisticsService {
       },
     ]);
 
-    console.log('BUCKETS:', buckets);
-
     const allRecords = await this.recordModel.find({}).lean();
 
     console.log('ALL RECORDS:', allRecords);
 
     if (allRecords.length > 0) {
-      console.log('userId VALUE:', allRecords[0].userId);
-      console.log('userId TYPE:', typeof allRecords[0].userId);
-
-      console.log('completed VALUE:', allRecords[0].completed);
-      console.log('completed TYPE:', typeof allRecords[0].completed);
     }
 
-    // rest of your code...
     const set = new Set(buckets.map((bucket) => bucket._id.getTime()));
 
     const current = this.periodStart(new Date(), period);
@@ -230,7 +202,6 @@ export class StatisticsService {
       cursor = this.shift(cursor, period, -1);
     }
 
-    // Best streak
     const sorted = [...set].sort((a, b) => a - b);
 
     let best = 0;
@@ -256,10 +227,6 @@ export class StatisticsService {
     };
   }
 
-  // =========================================================
-  // INDIVIDUAL STREAK FUNCTIONS
-  // =========================================================
-
   async getDailyStreak(userId: string) {
     return this.getStreak(userId, 'day');
   }
@@ -272,10 +239,6 @@ export class StatisticsService {
     return this.getStreak(userId, 'month');
   }
 
-  // =========================================================
-  // USER STREAK
-  // =========================================================
-
   async syncUserStreak(userId: string) {
     const { currentStreak, bestStreak } = await this.getDailyStreak(userId);
 
@@ -287,10 +250,6 @@ export class StatisticsService {
       },
     );
   }
-
-  // =========================================================
-  // OVERVIEW - OPTIONAL
-  // =========================================================
 
   async getOverview(userId: string) {
     const [
@@ -326,6 +285,72 @@ export class StatisticsService {
         habits: monthlyCompletion,
         streak: monthlyStreak,
       },
+    };
+  }
+
+  async getMonthlyProgress(userId: string) {
+    const now = new Date();
+
+    const startOfMonth = new Date(
+      now.getFullYear(),
+      now.getMonth(),
+      1,
+      0,
+      0,
+      0,
+      0,
+    );
+
+    const startOfNextMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      1,
+      0,
+      0,
+      0,
+      0,
+    );
+
+    const records = await this.recordModel
+      .find({
+        userId,
+        completed: true,
+        date: {
+          $gte: startOfMonth,
+          $lt: startOfNextMonth,
+        },
+      })
+      .lean();
+
+    const totalCompleted = records.length;
+
+    const totalAmount = records.reduce(
+      (sum, record) => sum + (record.amount ?? 1),
+      0,
+    );
+
+    // Tendencia por día
+    const trendMap = new Map<string, number>();
+
+    for (const record of records) {
+      const date = new Date(record.date);
+
+      const day = date.toISOString().split('T')[0];
+
+      trendMap.set(day, (trendMap.get(day) ?? 0) + (record.amount ?? 1));
+    }
+
+    const trend = Array.from(trendMap.entries())
+      .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
+      .map(([date, completed]) => ({
+        date,
+        completed,
+      }));
+
+    return {
+      totalCompleted,
+      totalAmount,
+      trend,
     };
   }
 }

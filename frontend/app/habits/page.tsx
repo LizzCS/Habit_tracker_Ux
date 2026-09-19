@@ -27,7 +27,7 @@ import type { RecordForm } from "../../forms/RecordForm";
 
 import { getCalendarDays } from "./utils";
 
-import { completeHabit } from "../dashboard/logic";
+import { completeHabit } from "../../services/records.services";
 
 import { getRecords } from "../../services/records.services";
 

@@ -1,7 +1,5 @@
 "use client";
 
-import * as React from "react";
-
 import {
   Box,
   Button,
@@ -186,8 +184,6 @@ export default function HabitDialog({
             </Box>
           )}
 
-          {/* FRECUENCIA + PRIORIDAD */}
-          {/* FRECUENCIA + PRIORIDAD */}
           <Box
             sx={{
               display: "grid",
@@ -221,7 +217,6 @@ export default function HabitDialog({
             </TextField>
           </Box>
 
-          {/* REPETICIONES */}
           <TextField
             label="Cantidad de veces"
             type="number"
@@ -234,8 +229,6 @@ export default function HabitDialog({
               },
             }}
           />
-          {/* FECHAS */}
-
           <Box
             sx={{
               display: "grid",
@@ -270,8 +263,6 @@ export default function HabitDialog({
               }}
             />
           </Box>
-
-          {/* ACTIVO */}
 
           <FormControlLabel
             control={

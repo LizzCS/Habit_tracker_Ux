@@ -10,6 +10,7 @@ import { BarChart } from "@mui/x-charts/BarChart";
 import { apiFetch } from "../../../lib/API";
 
 import type { Habit } from "../../../forms/HabitForm";
+import { getRecords } from "../../../services/records.services";
 
 type Record = {
   _id: string;
@@ -25,13 +26,10 @@ type Props = {
 export function Charts({ habits }: Props) {
   const [records, setRecords] = useState<Record[]>([]);
 
-  /*
-   * Obtener los registros de hábitos
-   */
   useEffect(() => {
     async function loadRecords() {
       try {
-        const data = await apiFetch("/records");
+        const data = await getRecords();
         setRecords(data);
       } catch (error) {
         console.error("No se pudieron cargar los registros:", error);
@@ -41,21 +39,11 @@ export function Charts({ habits }: Props) {
     loadRecords();
   }, []);
 
-  /*
-   * Fecha actual
-   */
   const today = useMemo(() => new Date(), []);
-
-  /*
-   * =========================
-   * GRÁFICO SEMANAL
-   * =========================
-   */
 
   const weeklyData = useMemo(() => {
     const currentDay = today.getDay();
 
-    // Convertir domingo = 0 para trabajar de lunes a domingo
     const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
 
     const monday = new Date(today);
@@ -95,12 +83,6 @@ export function Charts({ habits }: Props) {
     });
   }, [records, today]);
 
-  /*
-   * =========================
-   * GRÁFICO MENSUAL
-   * =========================
-   */
-
   const monthlyData = useMemo(() => {
     const months = [
       "Ene",
@@ -138,12 +120,6 @@ export function Charts({ habits }: Props) {
     });
   }, [records, today]);
 
-  /*
-   * =========================
-   * CONFIGURACIÓN DE EJES
-   * =========================
-   */
-
   const weeklyXAxis = useMemo(
     () => [
       {
@@ -163,12 +139,6 @@ export function Charts({ habits }: Props) {
     ],
     [],
   );
-
-  /*
-   * =========================
-   * SERIES
-   * =========================
-   */
 
   const weeklySeries = useMemo(
     () => [
@@ -204,10 +174,6 @@ export function Charts({ habits }: Props) {
         gap: 2,
       }}
     >
-      {/* =========================
-          GRÁFICO SEMANAL
-          ========================= */}
-
       <Box
         sx={{
           width: "100%",
@@ -219,8 +185,6 @@ export function Charts({ habits }: Props) {
           overflow: "hidden",
         }}
       >
-        {/* TÍTULO */}
-
         <Box
           sx={{
             backgroundColor: "#E8F5F5",
@@ -237,8 +201,6 @@ export function Charts({ habits }: Props) {
             Gráfico semanal
           </Typography>
         </Box>
-
-        {/* GRÁFICO */}
 
         <Box
           sx={{
@@ -271,10 +233,6 @@ export function Charts({ habits }: Props) {
         </Box>
       </Box>
 
-      {/* =========================
-          GRÁFICO MENSUAL
-          ========================= */}
-
       <Box
         sx={{
           width: "100%",
@@ -286,8 +244,6 @@ export function Charts({ habits }: Props) {
           overflow: "hidden",
         }}
       >
-        {/* TÍTULO */}
-
         <Box
           sx={{
             backgroundColor: "#E8F5F5",
@@ -304,8 +260,6 @@ export function Charts({ habits }: Props) {
             Gráfico mensual
           </Typography>
         </Box>
-
-        {/* GRÁFICO */}
 
         <Box
           sx={{

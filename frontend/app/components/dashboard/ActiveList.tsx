@@ -19,99 +19,44 @@ import type { RecordForm } from "../../../forms/RecordForm";
 type CheckboxListProps = {
   habits: Habit[];
   records: RecordForm[];
-  selectedDate: Date;
-  onHabitDeleted?: () => void;
 };
 
-export default function CheckBoxList({
-  habits,
-  records,
-  selectedDate,
-}: CheckboxListProps) {
+export default function ActiveList({ habits, records }: CheckboxListProps) {
   const [savingId, setSavingId] = React.useState<string | null>(null);
 
-  // Hábitos que corresponden a la fecha seleccionada
-  const habitsForSelectedDate = habits.filter((habit) => {
-    if (!habit.active) {
-      return false;
-    }
+  const getProgress = (habit: Habit) => {
+    return records
+      .filter((record) => record.habitId === habit._id)
+      .reduce((total, record) => {
+        return total + (record.amount ?? 0);
+      }, 0);
+  };
 
-    const selected = new Date(selectedDate);
-    selected.setHours(0, 0, 0, 0);
+  const activeHabits = habits.filter((habit) => habit.active);
 
-    const startDate = habit.startDate ? new Date(habit.startDate) : null;
+  const pendingHabits = activeHabits.filter((habit) => {
+    const progress = getProgress(habit);
 
-    const endDate = habit.endDate ? new Date(habit.endDate) : null;
-
-    if (startDate) {
-      startDate.setHours(0, 0, 0, 0);
-
-      if (selected < startDate) {
-        return false;
-      }
-    }
-
-    if (endDate) {
-      endDate.setHours(0, 0, 0, 0);
-
-      if (selected > endDate) {
-        return false;
-      }
-    }
-
-    if (habit.frequency === "diaria") {
-      return true;
-    }
-
-    if (habit.frequency === "semanal") {
-      return startDate !== null && selected.getDay() === startDate.getDay();
-    }
-
-    if (habit.frequency === "mensual") {
-      if (!startDate) {
-        return false;
-      }
-
-      return selected.getDate() === startDate.getDate();
-    }
-
-    return false;
+    return progress < habit.repeticiones;
   });
 
-  // Registros completados en la fecha seleccionada
-  const completedHabitIds = records
-    .filter((record) => {
-      if (!record.completed) {
-        return false;
-      }
-
-      const recordDate = new Date(record.date);
-
-      return (
-        recordDate.getFullYear() === selectedDate.getFullYear() &&
-        recordDate.getMonth() === selectedDate.getMonth() &&
-        recordDate.getDate() === selectedDate.getDate()
-      );
-    })
-    .map((record) => record.habitId);
-
   const handleToggle = async (habit: Habit) => {
-    const isCompleted = completedHabitIds.includes(habit._id);
+    const progress = getProgress(habit);
 
-    if (isCompleted) {
+    if (progress >= habit.repeticiones) {
       return;
     }
 
     try {
       setSavingId(habit._id);
 
-      await apiFetch("/records", {
+      await apiFetch(`/records/${habit._id}/complete`, {
         method: "POST",
+
         body: JSON.stringify({
-          habitId: habit._id,
-          date: selectedDate.toISOString(),
-          completed: true,
+          amount: habit.repeticiones - progress,
         }),
+
         headers: {
           "Content-Type": "application/json",
         },
@@ -135,7 +80,6 @@ export default function CheckBoxList({
         overflow: "hidden",
       }}
     >
-      {/* HEADER */}
       <Box
         sx={{
           backgroundColor: "#e6f7f7",
@@ -162,7 +106,7 @@ export default function CheckBoxList({
             fontWeight: 700,
           }}
         >
-          {habitsForSelectedDate.length}
+          {pendingHabits.length}
         </Box>
 
         <Typography
@@ -176,27 +120,29 @@ export default function CheckBoxList({
         </Typography>
       </Box>
 
-      {/* LIST */}
       <Box
         sx={{
           height: "calc(100% - 52px)",
           overflowY: "auto",
           px: 1.5,
           py: 1,
+
           "&::-webkit-scrollbar": {
             width: "5px",
           },
+
           "&::-webkit-scrollbar-thumb": {
             backgroundColor: "#1B8585",
             borderRadius: "10px",
           },
+
           "&::-webkit-scrollbar-track": {
             backgroundColor: "#f1f1f1",
           },
         }}
       >
         <List sx={{ p: 0 }}>
-          {habitsForSelectedDate.length === 0 ? (
+          {pendingHabits.length === 0 ? (
             <Typography
               sx={{
                 textAlign: "center",
@@ -208,10 +154,13 @@ export default function CheckBoxList({
               No tienes hábitos pendientes
             </Typography>
           ) : (
-            habitsForSelectedDate.map((habit) => {
-              const isCompleted = completedHabitIds.includes(habit._id);
+            pendingHabits.map((habit) => {
+              const progress = getProgress(habit);
 
-              const progress = isCompleted ? 100 : 0;
+              const progressPercentage = Math.min(
+                (progress / habit.repeticiones) * 100,
+                100,
+              );
 
               const saving = savingId === habit._id;
 
@@ -219,11 +168,12 @@ export default function CheckBoxList({
                 <ListItem key={habit._id} disablePadding sx={{ mb: 0.5 }}>
                   <ListItemButton
                     onClick={() => handleToggle(habit)}
-                    disabled={saving || isCompleted}
+                    disabled={saving}
                     sx={{
                       borderRadius: "10px",
                       px: 1,
                       py: 1,
+
                       "&:hover": {
                         backgroundColor: "#f0fafa",
                       },
@@ -236,13 +186,14 @@ export default function CheckBoxList({
                     >
                       <Checkbox
                         edge="start"
-                        checked={isCompleted}
+                        checked={false}
                         tabIndex={-1}
                         disableRipple
                         size="small"
                         sx={{
                           p: 0.5,
                           color: "#1B8585",
+
                           "&.Mui-checked": {
                             color: "#1B8585",
                           },
@@ -270,6 +221,17 @@ export default function CheckBoxList({
                         {habit.name}
                       </Typography>
 
+                      <Typography
+                        sx={{
+                          fontSize: "10px",
+                          color: "#6b7280",
+                          mb: 0.5,
+                          textTransform: "capitalize",
+                        }}
+                      >
+                        {habit.frequency}
+                      </Typography>
+
                       <Box
                         sx={{
                           display: "flex",
@@ -279,12 +241,13 @@ export default function CheckBoxList({
                       >
                         <LinearProgress
                           variant="determinate"
-                          value={progress}
+                          value={progressPercentage}
                           sx={{
                             flex: 1,
                             height: 5,
                             borderRadius: 5,
                             backgroundColor: "#e5e7eb",
+
                             "& .MuiLinearProgress-bar": {
                               backgroundColor: "#1B8585",
                               borderRadius: 5,
@@ -297,9 +260,12 @@ export default function CheckBoxList({
                             fontSize: "10px",
                             fontWeight: 600,
                             color: "#1B8585",
+                            whiteSpace: "nowrap",
                           }}
                         >
-                          {saving ? "..." : `${progress}%`}
+                          {saving
+                            ? "..."
+                            : `${progress} / ${habit.repeticiones}`}
                         </Typography>
                       </Box>
                     </Box>

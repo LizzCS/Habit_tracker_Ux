@@ -17,6 +17,7 @@ export async function updateRecord(
     body: JSON.stringify(data),
   });
 }
+
 //create
 export async function createRecord(
   habitId: string,
@@ -36,5 +37,22 @@ export async function createRecord(
 export async function deleteRecord(id: string) {
   return apiFetch(`/records/${id}`, {
     method: "DELETE",
+  });
+}
+
+export async function completeHabit(
+  habitId: string,
+  amount: number,
+  date: Date,
+): Promise<RecordForm> {
+  return await apiFetch(`/records/${habitId}/complete`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      amount,
+      date: date.toISOString(),
+    }),
   });
 }

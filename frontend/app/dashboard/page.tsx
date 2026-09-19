@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 
 import Box from "@mui/material/Box";
@@ -9,22 +9,25 @@ import CircularProgress from "@mui/material/CircularProgress";
 import Alert from "@mui/material/Alert";
 
 import Sidebar from "../components/sidebar";
-import InteractiveList from "../components/dashboard/completeList";
-import CheckBoxList from "../components/dashboard/dashboardList";
+import ActiveList from "../components/dashboard/ActiveList";
 import StreaksTittle from "../components/dashboard/cards";
 import { Charts } from "../components/dashboard/Graphs";
-import TitanicPie from "../components/dashboard/porcentageChart";
 
-import {
-  loadDashboard,
-  getActiveHabits,
-  getCompletedTodayRecords,
-  getCompletedHabitIds,
-  getCompletionPercentage,
-} from "./logic";
+import { getHabits } from "../../services/habit.services";
+import { getRecords } from "../../services/records.services";
 
 import type { Habit } from "../../forms/HabitForm";
 import type { RecordForm } from "../../forms/RecordForm";
+import CompleteList from "../components/dashboard/CompleteList";
+
+export async function loadDashboard() {
+  const [habits, records] = await Promise.all([getHabits(), getRecords()]);
+
+  return {
+    habits,
+    records,
+  };
+}
 
 export default function Dashboard() {
   const router = useRouter();
@@ -71,25 +74,6 @@ export default function Dashboard() {
 
     initializeDashboard();
   }, [router]);
-
-  const activeHabits = useMemo(() => getActiveHabits(habits), [habits]);
-
-  const completedTodayRecords = useMemo(
-    () => getCompletedTodayRecords(records),
-    [records],
-  );
-
-  const completedHabitIds = useMemo(
-    () => getCompletedHabitIds(completedTodayRecords),
-    [completedTodayRecords],
-  );
-
-  const completedToday = completedTodayRecords.length;
-
-  const completionPercentage = getCompletionPercentage(
-    completedToday,
-    activeHabits.length,
-  );
 
   if (loading) {
     return (
@@ -167,6 +151,18 @@ export default function Dashboard() {
         )}
         {/* STREAKS */}
         <StreaksTittle />
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", sm: "row" },
+            gap: 2,
+            width: "100%",
+          }}
+        >
+          <ActiveList habits={habits} records={records} />
+
+          <CompleteList habits={habits} records={records} />
+        </Box>
         <Charts habits={habits} />
       </Box>
     </Box>

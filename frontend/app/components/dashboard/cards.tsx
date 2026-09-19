@@ -8,6 +8,9 @@ import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CircularProgress from "@mui/material/CircularProgress";
 
+import type { Habit } from "../../../forms/HabitForm";
+import type { RecordForm } from "../../../forms/RecordForm";
+
 import {
   getDailyStreak,
   getWeeklyStreak,
@@ -19,7 +22,17 @@ type Streak = {
   bestStreak: number;
 };
 
-export default function StreaksTitle() {
+type Props = {
+  mode?: "streaks" | "summary";
+  habits?: Habit[];
+  records?: RecordForm[];
+};
+
+export default function StreaksTitle({
+  mode = "streaks",
+  habits = [],
+  records = [],
+}: Props) {
   const [daily, setDaily] = useState<Streak | null>(null);
   const [weekly, setWeekly] = useState<Streak | null>(null);
   const [monthly, setMonthly] = useState<Streak | null>(null);
@@ -62,6 +75,149 @@ export default function StreaksTitle() {
     );
   }
 
+  const mejorRacha = Math.max(
+    daily?.bestStreak ?? 0,
+    weekly?.bestStreak ?? 0,
+    monthly?.bestStreak ?? 0,
+  );
+
+  if (mode === "summary") {
+    const getProgress = (habit: Habit) => {
+      return records
+        .filter((record) => record.habitId === habit._id)
+        .reduce((total, record) => total + (record.amount ?? 0), 0);
+    };
+
+    const totalHabits = habits.length;
+
+    const activeHabits = habits.filter((habit) => {
+      if (!habit.active) return false;
+
+      const progress = getProgress(habit);
+
+      return progress < habit.repeticiones;
+    }).length;
+
+    const finishedHabits = habits.filter((habit) =>
+      records.some(
+        (record) => record.habitId === habit._id && record.completed === true,
+      ),
+    ).length;
+
+    const summaryItems = [
+      {
+        label: "Total de hábitos",
+        value: totalHabits,
+        unit: "hábitos",
+      },
+      {
+        label: "Hábitos activos",
+        value: activeHabits,
+        unit: "activos",
+      },
+      {
+        label: "Racha",
+        value: daily?.currentStreak ?? 0,
+        unit: daily?.currentStreak === 1 ? "día" : "días",
+      },
+      {
+        label: "Hábitos finalizados",
+        value: finishedHabits,
+        unit: "finalizados",
+      },
+    ];
+
+    return (
+      <Card
+        elevation={0}
+        sx={{
+          boxShadow: "0 4px 18px rgba(20,110,110,0.10)",
+          overflow: "hidden",
+          height: "100%",
+        }}
+      >
+        <Box
+          sx={{
+            backgroundColor: "#e3f5f5",
+            textAlign: "center",
+            py: 2,
+          }}
+        >
+          <Typography
+            variant="h6"
+            sx={{
+              color: "#146e6e",
+              fontWeight: 600,
+            }}
+          >
+            Resumen
+          </Typography>
+        </Box>
+
+        <CardContent sx={{ p: 3 }}>
+          <Box
+            sx={{
+              display: "grid",
+              gridTemplateColumns: {
+                xs: "repeat(2, 1fr)",
+                lg: "repeat(4, 1fr)",
+              },
+              m: -3,
+            }}
+          >
+            {summaryItems.map((item, index) => (
+              <Box
+                key={item.label}
+                sx={{
+                  py: 4,
+                  textAlign: "center",
+                  borderLeft: {
+                    xs: index % 2 ? 1 : 0,
+                    lg: index ? 1 : 0,
+                  },
+                  borderTop: {
+                    xs: index >= 2 ? 1 : 0,
+                    lg: 0,
+                  },
+                  borderColor: "#c5e6e6",
+                }}
+              >
+                <Typography
+                  sx={{
+                    fontSize: "14px",
+                    color: "text.secondary",
+                  }}
+                >
+                  {item.label}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: "42px",
+                    fontWeight: 700,
+                    color: "#111827",
+                    my: 0.5,
+                  }}
+                >
+                  {item.value}
+                </Typography>
+
+                <Typography
+                  sx={{
+                    fontSize: "13px",
+                    color: "text.secondary",
+                  }}
+                >
+                  {item.unit}
+                </Typography>
+              </Box>
+            ))}
+          </Box>
+        </CardContent>
+      </Card>
+    );
+  }
+
   const streaks = [
     {
       label: "Diaria",
@@ -79,12 +235,6 @@ export default function StreaksTitle() {
       streak: monthly?.currentStreak ?? 0,
     },
   ];
-
-  const mejorRacha = Math.max(
-    daily?.bestStreak ?? 0,
-    weekly?.bestStreak ?? 0,
-    monthly?.bestStreak ?? 0,
-  );
 
   return (
     <Box sx={{ textAlign: "center" }}>

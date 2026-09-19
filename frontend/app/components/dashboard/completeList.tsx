@@ -6,7 +6,6 @@ import ListItemText from "@mui/material/ListItemText";
 import Avatar from "@mui/material/Avatar";
 import Typography from "@mui/material/Typography";
 import CheckCircleIcon from "@mui/icons-material/CheckCircle";
-
 import type { Habit } from "../../../forms/HabitForm";
 
 type RecordForm = {
@@ -20,29 +19,13 @@ type RecordForm = {
 type Props = {
   habits: Habit[];
   records: RecordForm[];
-  selectedDate: Date;
-  onHabitDeleted: () => void;
 };
 
-export default function InteractiveList({
-  habits,
-  records,
-  selectedDate,
-}: Props) {
+export default function CompleteList({ habits, records }: Props) {
   const completedHabits = habits.filter((habit) =>
-    records.some((record) => {
-      if (!record.completed) return false;
-
-      if (record.habitId !== habit._id) return false;
-
-      const recordDate = new Date(record.date);
-
-      return (
-        recordDate.getFullYear() === selectedDate.getFullYear() &&
-        recordDate.getMonth() === selectedDate.getMonth() &&
-        recordDate.getDate() === selectedDate.getDate()
-      );
-    }),
+    records.some(
+      (record) => record.habitId === habit._id && record.completed === true,
+    ),
   );
 
   return (
@@ -125,7 +108,7 @@ export default function InteractiveList({
               mt: 5,
             }}
           >
-            No has completado ningún hábito en esta fecha.
+            No has completado ningún hábito.
           </Typography>
         ) : (
           <List sx={{ p: 0 }}>

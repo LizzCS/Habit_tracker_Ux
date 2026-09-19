@@ -40,4 +40,10 @@ export class StatisticsController {
   getMonthlyCompletion(@Req() req: any) {
     return this.statisticsService.getMonthlyCompletion(req.user.sub);
   }
+  @Get('monthly-progress')
+  getMonthlyProgress(@Req() req) {
+    console.log('>>> REQ.USER:', req.user);
+
+    return this.statisticsService.getMonthlyProgress(req.user.sub);
+  }
 }

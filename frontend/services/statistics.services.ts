@@ -23,3 +23,13 @@ export async function getWeeklyStreak() {
 export async function getMonthlyStreak() {
   return apiFetch("/statistics/monthly-streak");
 }
+
+export async function getMonthlyProgress() {
+  console.log(">>> GET MONTHLY PROGRESS CALLED");
+
+  const data = await apiFetch("/statistics/monthly-progress");
+
+  console.log(">>> MONTHLY RESPONSE:", data);
+
+  return data;
+}
