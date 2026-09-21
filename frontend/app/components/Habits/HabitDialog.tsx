@@ -263,22 +263,6 @@ export default function HabitDialog({
               }}
             />
           </Box>
-
-          <FormControlLabel
-            control={
-              <Checkbox
-                checked={form.active}
-                onChange={(e) => onChange("active", e.target.checked)}
-                sx={{
-                  color: "#1B8585",
-                  "&.Mui-checked": {
-                    color: "#1B8585",
-                  },
-                }}
-              />
-            }
-            label="Hábito activo"
-          />
         </Box>
       </DialogContent>
 

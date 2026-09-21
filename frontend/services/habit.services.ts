@@ -25,3 +25,9 @@ export async function deleteHabit(id: string) {
     method: "DELETE",
   });
 }
+
+export async function disActivateHabit(id: string) {
+  return apiFetch(`/habits/${id}/deactivate`, {
+    method: "PATCH",
+  });
+}

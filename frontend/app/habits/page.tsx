@@ -58,10 +58,6 @@ export default function Habits() {
     handleDelete,
   } = useHabits();
 
-  // =========================
-  // RECORDS
-  // =========================
-
   const [records, setRecords] = React.useState<RecordForm[]>([]);
 
   const loadAllRecords = async () => {
@@ -74,9 +70,6 @@ export default function Habits() {
     }
   };
 
-  // =========================
-  // COMPLETE HABIT
-  // =========================
   const handleComplete = async (
     habitId: string,
     amount: number,
@@ -94,9 +87,6 @@ export default function Habits() {
       throw error;
     }
   };
-  // =========================
-  // LOAD RECORDS
-  // =========================
 
   React.useEffect(() => {
     loadAllRecords();
@@ -128,8 +118,6 @@ export default function Habits() {
             margin: "0 auto",
           }}
         >
-          {/* PAGE TITLE */}
-
           <Box sx={{ mb: 3 }}>
             <Typography
               sx={{
@@ -145,15 +133,11 @@ export default function Habits() {
             </Typography>
           </Box>
 
-          {/* ERROR */}
-
           {error && (
             <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError("")}>
               {error}
             </Alert>
           )}
-
-          {/* CALENDAR */}
 
           <Card
             sx={{
@@ -164,8 +148,6 @@ export default function Habits() {
             }}
           >
             <CardContent sx={{ p: 0.5 }}>
-              {/* CALENDAR HEADER */}
-
               <Box
                 sx={{
                   display: "flex",
@@ -194,8 +176,6 @@ export default function Habits() {
                 </IconButton>
               </Box>
 
-              {/* WEEK DAYS */}
-
               <Box
                 sx={{
                   display: "grid",
@@ -220,8 +200,6 @@ export default function Habits() {
                   ),
                 )}
               </Box>
-
-              {/* DAYS */}
 
               <Box
                 sx={{
@@ -281,8 +259,6 @@ export default function Habits() {
             </CardContent>
           </Card>
 
-          {/* LIST HEADER */}
-
           <Box
             sx={{
               display: "flex",
@@ -330,8 +306,6 @@ export default function Habits() {
               Nuevo hábito
             </Button>
           </Box>
-
-          {/* HABITS LIST */}
 
           {loading ? (
             <Box

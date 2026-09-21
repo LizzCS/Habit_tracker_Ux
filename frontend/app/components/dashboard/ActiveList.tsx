@@ -7,66 +7,151 @@ import List from "@mui/material/List";
 import ListItem from "@mui/material/ListItem";
 import ListItemButton from "@mui/material/ListItemButton";
 import ListItemIcon from "@mui/material/ListItemIcon";
-import Checkbox from "@mui/material/Checkbox";
 import Typography from "@mui/material/Typography";
 import LinearProgress from "@mui/material/LinearProgress";
+import TextField from "@mui/material/TextField";
+import IconButton from "@mui/material/IconButton";
+
+import { Check } from "@mui/icons-material";
 
 import { apiFetch } from "../../../lib/API";
 
 import type { Habit } from "../../../forms/HabitForm";
 import type { RecordForm } from "../../../forms/RecordForm";
+import { updateRecord } from "../../../services/records.services";
 
 type CheckboxListProps = {
   habits: Habit[];
   records: RecordForm[];
 };
 
+/* =========================
+   FECHA LOCAL
+========================= */
+
+const getLocalDateString = (date: Date = new Date()) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+
+  return `${year}-${month}-${day}`;
+};
+
+const getDateString = (value: string | Date) => {
+  if (typeof value === "string") {
+    return value.slice(0, 10);
+  }
+
+  return getLocalDateString(value);
+};
+
+/* =========================
+   SEMANA
+========================= */
+
+const getWeekStart = (date: Date) => {
+  const result = new Date(date);
+
+  const day = result.getDay();
+
+  const diff = day === 0 ? -6 : 1 - day;
+
+  result.setDate(result.getDate() + diff);
+  result.setHours(0, 0, 0, 0);
+
+  return result;
+};
+
+const getWeekKey = (date: string | Date) => {
+  const d = new Date(date);
+  const weekStart = getWeekStart(d);
+
+  return getLocalDateString(weekStart);
+};
+
+/* =========================
+   DISPONIBILIDAD DEL HÁBITO
+========================= */
+
+const isAvailableToday = (habit: Habit) => {
+  if (!habit.active) {
+    return false;
+  }
+
+  const today = getLocalDateString();
+
+  const startDate = getDateString(habit.startDate);
+
+  if (today < startDate) {
+    return false;
+  }
+
+  if (habit.endDate) {
+    const endDate = getDateString(habit.endDate);
+
+    if (today > endDate) {
+      return false;
+    }
+  }
+
+  return true;
+};
+
 export default function ActiveList({ habits, records }: CheckboxListProps) {
   const [savingId, setSavingId] = React.useState<string | null>(null);
 
+  const [amounts, setAmounts] = React.useState<Record<string, number>>({});
+
   const getProgress = (habit: Habit) => {
+    const now = new Date();
+
+    const currentDay = getLocalDateString(now);
+    const currentWeek = getWeekKey(now);
+    const currentMonth = currentDay.slice(0, 7);
+
     return records
       .filter((record) => record.habitId === habit._id)
+      .filter((record) => {
+        if (!record.date) {
+          return false;
+        }
+
+        const recordDay = getDateString(record.date);
+
+        switch (habit.frequency) {
+          case "diaria":
+            return recordDay === currentDay;
+
+          case "semanal":
+            return getWeekKey(record.date) === currentWeek;
+
+          case "mensual":
+            return recordDay.slice(0, 7) === currentMonth;
+
+          default:
+            return false;
+        }
+      })
       .reduce((total, record) => {
         return total + (record.amount ?? 0);
       }, 0);
   };
 
-  const activeHabits = habits.filter((habit) => habit.active);
+  /* =========================
+     HÁBITOS DISPONIBLES HOY
+  ========================= */
 
-  const pendingHabits = activeHabits.filter((habit) => {
+  const availableHabits = habits.filter(isAvailableToday);
+
+  /* =========================
+     HÁBITOS PENDIENTES
+  ========================= */
+
+  const pendingHabits = availableHabits.filter((habit) => {
     const progress = getProgress(habit);
 
     return progress < habit.repeticiones;
   });
-
-  const handleToggle = async (habit: Habit) => {
-    const progress = getProgress(habit);
-
-    if (progress >= habit.repeticiones) {
-      return;
-    }
-
-    try {
-      setSavingId(habit._id);
-
-      await apiFetch(`/records/${habit._id}/complete`, {
-        method: "POST",
-
-        body: JSON.stringify({
-          amount: habit.repeticiones - progress,
-        }),
-
-        headers: {
-          "Content-Type": "application/json",
-        },
-      });
-    } catch (error) {
-      console.error("No se pudo completar el hábito:", error);
-    } finally {
-      setSavingId(null);
-    }
-  };
 
   return (
     <Box
@@ -116,7 +201,7 @@ export default function ActiveList({ habits, records }: CheckboxListProps) {
             color: "#1B8585",
           }}
         >
-          Hábitos por completar
+          Hábitos por completar hoy
         </Typography>
       </Box>
 
@@ -126,16 +211,13 @@ export default function ActiveList({ habits, records }: CheckboxListProps) {
           overflowY: "auto",
           px: 1.5,
           py: 1,
-
           "&::-webkit-scrollbar": {
             width: "5px",
           },
-
           "&::-webkit-scrollbar-thumb": {
             backgroundColor: "#1B8585",
             borderRadius: "10px",
           },
-
           "&::-webkit-scrollbar-track": {
             backgroundColor: "#f1f1f1",
           },
@@ -157,50 +239,29 @@ export default function ActiveList({ habits, records }: CheckboxListProps) {
             pendingHabits.map((habit) => {
               const progress = getProgress(habit);
 
+              const remaining = Math.max(habit.repeticiones - progress, 0);
+
               const progressPercentage = Math.min(
                 (progress / habit.repeticiones) * 100,
                 100,
               );
+
+              const amount = amounts[habit._id] ?? 0;
 
               const saving = savingId === habit._id;
 
               return (
                 <ListItem key={habit._id} disablePadding sx={{ mb: 0.5 }}>
                   <ListItemButton
-                    onClick={() => handleToggle(habit)}
-                    disabled={saving}
                     sx={{
                       borderRadius: "10px",
                       px: 1,
                       py: 1,
-
                       "&:hover": {
                         backgroundColor: "#f0fafa",
                       },
                     }}
                   >
-                    <ListItemIcon
-                      sx={{
-                        minWidth: "32px",
-                      }}
-                    >
-                      <Checkbox
-                        edge="start"
-                        checked={false}
-                        tabIndex={-1}
-                        disableRipple
-                        size="small"
-                        sx={{
-                          p: 0.5,
-                          color: "#1B8585",
-
-                          "&.Mui-checked": {
-                            color: "#1B8585",
-                          },
-                        }}
-                      />
-                    </ListItemIcon>
-
                     <Box
                       sx={{
                         width: "100%",
@@ -247,7 +308,6 @@ export default function ActiveList({ habits, records }: CheckboxListProps) {
                             height: 5,
                             borderRadius: 5,
                             backgroundColor: "#e5e7eb",
-
                             "& .MuiLinearProgress-bar": {
                               backgroundColor: "#1B8585",
                               borderRadius: 5,

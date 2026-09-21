@@ -92,8 +92,6 @@ export class RecordsService {
     const selectedDate = new Date(date);
     selectedDate.setHours(0, 0, 0, 0);
 
-    console.log('Saving record with date:', selectedDate);
-
     const record = await this.recordModel.findOneAndUpdate(
       {
         habitId,
@@ -110,9 +108,6 @@ export class RecordsService {
         upsert: true,
       },
     );
-
-    console.log('Record returned:', record);
-
     return record;
   }
 }

@@ -52,4 +52,10 @@ export class HabitsController {
   remove(@Param('id') id: string, @Req() req: any) {
     return this.habitsService.remove(id, req.user.sub);
   }
+
+  @Patch(':id/deactivate')
+  @UseGuards(JwtAuthGuard)
+  async disActivate(@Param('id') id: string, @Req() req) {
+    return this.habitsService.disActivate(id, req.user.sub);
+  }
 }

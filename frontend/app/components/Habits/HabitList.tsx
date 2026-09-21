@@ -204,8 +204,6 @@ export default function HabitList({
               borderRadius: "14px",
               border: "1px solid #e5e7eb",
               boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
-              opacity: completed ? 0.55 : 1,
-              backgroundColor: completed ? "#f3f4f6" : "#ffffff",
               transition: "all 0.2s ease",
             }}
           >
@@ -230,6 +228,7 @@ export default function HabitList({
                 <Typography
                   sx={{
                     color: completed ? "#6b7280" : "#1f2937",
+                    textDecoration: completed ? "line-through" : "none",
                   }}
                 >
                   <strong>{habit.name}</strong>
@@ -319,9 +318,10 @@ export default function HabitList({
                         max: remaining,
                       },
                     }}
-                    disabled={completed}
                     sx={{
-                      width: 75,
+                      "& .MuiInputBase-input": {
+                        textDecoration: completed ? "line-through" : "none",
+                      },
                     }}
                   />
 
@@ -339,10 +339,11 @@ export default function HabitList({
 
               {/* Editar */}
               <IconButton
-                disabled={completed}
                 onClick={() => onEdit(habit)}
                 sx={{
                   color: "#6b7280",
+                  textDecoration: completed ? "line-through" : "none",
+                  opacity: completed ? 0.7 : 1,
                 }}
               >
                 <Edit fontSize="small" />
@@ -350,10 +351,11 @@ export default function HabitList({
 
               {/* Eliminar */}
               <IconButton
-                disabled={completed}
                 onClick={() => onDelete(habit._id)}
                 sx={{
                   color: "#ef4444",
+                  textDecoration: completed ? "line-through" : "none",
+                  opacity: completed ? 0.7 : 1,
                 }}
               >
                 <Delete fontSize="small" />

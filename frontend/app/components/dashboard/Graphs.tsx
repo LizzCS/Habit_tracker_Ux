@@ -4,10 +4,7 @@ import { useEffect, useMemo, useState } from "react";
 
 import Box from "@mui/material/Box";
 import Typography from "@mui/material/Typography";
-
 import { BarChart } from "@mui/x-charts/BarChart";
-
-import { apiFetch } from "../../../lib/API";
 
 import type { Habit } from "../../../forms/HabitForm";
 import { getRecords } from "../../../services/records.services";
@@ -41,13 +38,26 @@ export function Charts({ habits }: Props) {
 
   const today = useMemo(() => new Date(), []);
 
+  /*
+   * =========================
+   * GRÁFICO SEMANAL
+   * =========================
+   *
+   * Cuenta HÁBITOS, no registros.
+   *
+   * Si el mismo hábito tiene 3 records
+   * completados el mismo día, cuenta como 1.
+   */
+
   const weeklyData = useMemo(() => {
     const currentDay = today.getDay();
 
     const mondayOffset = currentDay === 0 ? -6 : 1 - currentDay;
 
     const monday = new Date(today);
+
     monday.setDate(today.getDate() + mondayOffset);
+
     monday.setHours(0, 0, 0, 0);
 
     const days = [
@@ -62,26 +72,46 @@ export function Charts({ habits }: Props) {
 
     return days.map((day) => {
       const date = new Date(monday);
+
       date.setDate(monday.getDate() + day.offset);
 
-      const completed = records.filter((record) => {
-        if (!record.completed) return false;
+      const dateString = `${date.getFullYear()}-${String(
+        date.getMonth() + 1,
+      ).padStart(2, "0")}-${String(date.getDate()).padStart(2, "0")}`;
 
-        const recordDate = new Date(record.date);
+      /*
+       * Set evita contar el mismo hábito
+       * más de una vez.
+       */
+      const completedHabitIds = new Set(
+        records
+          .filter((record) => {
+            if (!record.completed) {
+              return false;
+            }
 
-        return (
-          recordDate.getFullYear() === date.getFullYear() &&
-          recordDate.getMonth() === date.getMonth() &&
-          recordDate.getDate() === date.getDate()
-        );
-      }).length;
+            return record.date.slice(0, 10) === dateString;
+          })
+          .map((record) => record.habitId),
+      );
 
       return {
         day: day.name,
-        completed,
+        completed: completedHabitIds.size,
       };
     });
   }, [records, today]);
+
+  /*
+   * =========================
+   * GRÁFICO MENSUAL
+   * =========================
+   *
+   * Cuenta HÁBITOS por mes.
+   *
+   * Un mismo hábito solo cuenta una vez
+   * dentro de cada mes.
+   */
 
   const monthlyData = useMemo(() => {
     const months = [
@@ -102,20 +132,26 @@ export function Charts({ habits }: Props) {
     const currentYear = today.getFullYear();
 
     return months.map((month, index) => {
-      const completed = records.filter((record) => {
-        if (!record.completed) return false;
+      const completedHabitIds = new Set(
+        records
+          .filter((record) => {
+            if (!record.completed) {
+              return false;
+            }
 
-        const recordDate = new Date(record.date);
+            const recordDate = new Date(record.date);
 
-        return (
-          recordDate.getFullYear() === currentYear &&
-          recordDate.getMonth() === index
-        );
-      }).length;
+            return (
+              recordDate.getFullYear() === currentYear &&
+              recordDate.getMonth() === index
+            );
+          })
+          .map((record) => record.habitId),
+      );
 
       return {
         month,
-        completed,
+        completed: completedHabitIds.size,
       };
     });
   }, [records, today]);
@@ -135,6 +171,7 @@ export function Charts({ habits }: Props) {
       {
         dataKey: "month",
         scaleType: "band" as const,
+        tickLabelInterval: () => true,
       },
     ],
     [],
@@ -174,6 +211,10 @@ export function Charts({ habits }: Props) {
         gap: 2,
       }}
     >
+      {/* =========================
+          GRÁFICO SEMANAL
+      ========================= */}
+
       <Box
         sx={{
           width: "100%",
@@ -216,6 +257,11 @@ export function Charts({ habits }: Props) {
           <BarChart
             dataset={weeklyData}
             xAxis={weeklyXAxis}
+            yAxis={[
+              {
+                tickMinStep: 1,
+              },
+            ]}
             series={weeklySeries}
             height={300}
             margin={{
@@ -232,6 +278,10 @@ export function Charts({ habits }: Props) {
           />
         </Box>
       </Box>
+
+      {/* =========================
+          GRÁFICO MENSUAL
+      ========================= */}
 
       <Box
         sx={{

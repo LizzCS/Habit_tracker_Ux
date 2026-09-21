@@ -6,7 +6,7 @@ export type Habit = {
   frequency: "diaria" | "semanal" | "mensual";
   priority: "baja" | "media" | "alta";
   repeticiones: number;
-  startDate?: string;
+  startDate: string;
   endDate?: string;
   active: boolean;
   userId: string;
