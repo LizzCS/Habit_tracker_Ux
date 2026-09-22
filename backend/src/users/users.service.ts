@@ -85,7 +85,15 @@ export class UsersService {
     };
   }
 
-  async updateRacha(id: string) {
+  async increaseRacha(id: string) {
+    return this.userModel.findByIdAndUpdate(
+      id,
+      { $inc: { racha: 1 } },
+      { new: true },
+    );
+  }
+
+  async decreaseRacha(id: string) {
     return this.userModel.findByIdAndUpdate(
       id,
       { $inc: { racha: 1 } },

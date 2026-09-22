@@ -1,13 +1,10 @@
-//crud paste here
 import { apiFetch } from "../lib/API";
 import { RecordForm } from "../forms/RecordForm";
 
-//Read Record
 export async function getRecords(): Promise<RecordForm[]> {
   return apiFetch("/records");
 }
 
-//update Record
 export async function updateRecord(
   id: string,
   data: { amount?: number; completed?: boolean },
@@ -18,7 +15,6 @@ export async function updateRecord(
   });
 }
 
-//create
 export async function createRecord(
   habitId: string,
   amount: number,
@@ -33,7 +29,6 @@ export async function createRecord(
   });
 }
 
-//delte
 export async function deleteRecord(id: string) {
   return apiFetch(`/records/${id}`, {
     method: "DELETE",

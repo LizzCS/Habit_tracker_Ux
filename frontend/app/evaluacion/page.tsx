@@ -130,10 +130,7 @@ export default function EvaluacionPage() {
           sx={{
             display: "grid",
             gap: 3,
-            gridTemplateColumns: {
-              xs: "1fr",
-              xl: "1fr 1fr",
-            },
+            gridTemplateColumns: "1fr",
           }}
         >
           <ProgresoMensual />

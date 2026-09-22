@@ -54,7 +54,6 @@ export class HabitsController {
   }
 
   @Patch(':id/deactivate')
-  @UseGuards(JwtAuthGuard)
   async disActivate(@Param('id') id: string, @Req() req) {
     return this.habitsService.disActivate(id, req.user.sub);
   }

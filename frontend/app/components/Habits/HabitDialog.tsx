@@ -10,12 +10,11 @@ import {
   DialogActions,
   TextField,
   MenuItem,
-  Checkbox,
-  FormControlLabel,
   CircularProgress,
   Typography,
 } from "@mui/material";
 
+import { updateRecord } from "../../../services/records.services";
 import type { HabitForm } from "../../../forms/HabitForm";
 
 type HabitDialogProps = {
@@ -134,8 +133,6 @@ export default function HabitDialog({
             multiline
             rows={2}
           />
-
-          {/*Cantidad de veces a realizar el hábito*/}
 
           {/* CATEGORÍA */}
 

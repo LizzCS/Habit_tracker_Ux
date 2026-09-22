@@ -19,6 +19,7 @@ import { getRecords } from "../../services/records.services";
 import type { Habit } from "../../forms/HabitForm";
 import type { RecordForm } from "../../forms/RecordForm";
 import CompleteList from "../components/dashboard/CompleteList";
+import { ProgresoDeHoy } from "../components/dashboard/cards";
 
 export async function loadDashboard() {
   const [habits, records] = await Promise.all([getHabits(), getRecords()]);
@@ -150,20 +151,48 @@ export default function Dashboard() {
           </Alert>
         )}
         {/* STREAKS */}
-        <StreaksTittle />
+        {/* STREAKS */}
+        {/* STREAKS + PROGRESO */}
         <Box
           sx={{
             display: "flex",
-            flexDirection: { xs: "column", sm: "row" },
+            flexDirection: { xs: "column", md: "row" },
             gap: 2,
             width: "100%",
           }}
         >
-          <ActiveList habits={habits} records={records} />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <StreaksTittle />
+          </Box>
 
-          <CompleteList habits={habits} records={records} />
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <ProgresoDeHoy habits={habits} records={records} />
+          </Box>
         </Box>
-        <Charts habits={habits} />
+
+        {/* LISTAS */}
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: { xs: "column", md: "row" },
+            gap: 2,
+            width: "100%",
+            mt: 2,
+          }}
+        >
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <ActiveList habits={habits} records={records} />
+          </Box>
+
+          <Box sx={{ flex: 1, minWidth: 0 }}>
+            <CompleteList habits={habits} records={records} />
+          </Box>
+        </Box>
+
+        {/* CHARTS */}
+        <Box sx={{ mt: 2 }}>
+          <Charts habits={habits} />
+        </Box>
       </Box>
     </Box>
   );

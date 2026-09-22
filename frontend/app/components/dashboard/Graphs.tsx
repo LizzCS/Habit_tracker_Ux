@@ -102,17 +102,6 @@ export function Charts({ habits }: Props) {
     });
   }, [records, today]);
 
-  /*
-   * =========================
-   * GRÁFICO MENSUAL
-   * =========================
-   *
-   * Cuenta HÁBITOS por mes.
-   *
-   * Un mismo hábito solo cuenta una vez
-   * dentro de cada mes.
-   */
-
   const monthlyData = useMemo(() => {
     const months = [
       "Ene",

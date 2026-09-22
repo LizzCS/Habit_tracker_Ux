@@ -282,16 +282,6 @@ export default function HabitList({
                       fontSize: "11px",
                     }}
                   />
-
-                  {habit.category && (
-                    <Chip
-                      label={habit.category}
-                      size="small"
-                      sx={{
-                        fontSize: "11px",
-                      }}
-                    />
-                  )}
                 </Box>
               </Box>
 

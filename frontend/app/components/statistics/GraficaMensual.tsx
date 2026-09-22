@@ -35,8 +35,6 @@ export default function ProgresoMensual({ month }: ProgresoMensualProps) {
   const [monthly, setMonthly] = useState<MonthlyProgress | null>(null);
   const [loading, setLoading] = useState(true);
 
-  console.log("aliiiiiiibr");
-
   useEffect(() => {
     console.log(">>> PROGRESO MENSUAL MOUNTED");
 

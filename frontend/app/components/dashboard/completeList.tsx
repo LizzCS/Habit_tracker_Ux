@@ -87,9 +87,7 @@ export default function CompleteList({ habits, records }: Props) {
   };
 
   const getProgress = (habit: Habit) => {
-    const startOfPeriod = getStartOfPeriod(habit.frequency);
-
-    const endOfPeriod = getEndOfPeriod(habit.frequency);
+    const today = new Date();
 
     return records
       .filter((record) => {
@@ -99,7 +97,11 @@ export default function CompleteList({ habits, records }: Props) {
 
         const recordDate = new Date(record.date);
 
-        return recordDate >= startOfPeriod && recordDate < endOfPeriod;
+        return (
+          recordDate.getFullYear() === today.getFullYear() &&
+          recordDate.getMonth() === today.getMonth() &&
+          recordDate.getDate() === today.getDate()
+        );
       })
       .reduce((total, record) => {
         return total + (record.amount ?? 0);

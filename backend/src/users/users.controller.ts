@@ -43,7 +43,12 @@ export class UsersController {
   }
 
   @Patch(':id')
-  updateRacha(@Param('id') id: string) {
-    return this.usersService.updateRacha(id);
+  increaseRacha(@Param('id') id: string) {
+    return this.usersService.increaseRacha(id);
+  }
+
+  @Patch(':id')
+  decreaseRacha(@Param('id') id: string) {
+    return this.usersService.decreaseRacha(id);
   }
 }
