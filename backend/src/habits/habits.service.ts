@@ -57,7 +57,6 @@ export class HabitsService {
       throw new NotFoundException('Hábito no encontrado');
     }
 
-    // If the amount/goal was changed, recalculate today's record
     if (updateHabitDto.repeticiones !== undefined) {
       const today = new Date();
       today.setHours(0, 0, 0, 0);

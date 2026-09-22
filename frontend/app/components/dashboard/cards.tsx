@@ -442,7 +442,6 @@ export function ProgresoDeHoy({
         boxShadow: "0 4px 18px rgba(20,110,110,0.10)",
         overflow: "hidden",
         borderRadius: "14px",
-
         height: "100%",
       }}
     >

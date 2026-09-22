@@ -1,5 +1,5 @@
 import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
-import { HydratedDocument } from 'mongoose';
+import { HydratedDocument, Types } from 'mongoose';
 
 export type HabitDocument = HydratedDocument<Habit>;
 
@@ -38,8 +38,12 @@ export class Habit {
   @Prop({ default: true })
   active!: boolean;
 
-  @Prop({ required: true })
-  userId!: string;
+  @Prop({
+    type: Types.ObjectId,
+    ref: 'User',
+    required: true,
+  })
+  userId!: Types.ObjectId;
 }
 
 export const HabitSchema = SchemaFactory.createForClass(Habit);

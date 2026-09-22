@@ -132,13 +132,6 @@ export default function HabitList({
 
       const newProgress = progress + amount;
 
-      console.log("Selected date:", selectedDate);
-      console.log("Previous progress:", progress);
-      console.log("Amount added:", amount);
-      console.log("New progress:", newProgress);
-      console.log("Target:", habit.repeticiones);
-      console.log("Record:", record);
-
       if (newProgress >= habit.repeticiones) {
         console.log("Habit completed. Updating record:", record._id);
 
@@ -203,6 +196,7 @@ export default function HabitList({
             sx={{
               borderRadius: "14px",
               border: "1px solid #e5e7eb",
+              background: completed ? "#32d4755a" : "#ffff",
               boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
               transition: "all 0.2s ease",
             }}
@@ -227,7 +221,7 @@ export default function HabitList({
               >
                 <Typography
                   sx={{
-                    color: completed ? "#6b7280" : "#1f2937",
+                    color: completed ? "#0b8a40" : "#1f2937",
                     textDecoration: completed ? "line-through" : "none",
                   }}
                 >

@@ -144,10 +144,6 @@ export class StatisticsService {
     return this.getHabitCompletion(userId, 'day');
   }
 
-  async getWeeklyCompletion(userId: string) {
-    return this.getHabitCompletion(userId, 'week');
-  }
-
   async getMonthlyCompletion(userId: string) {
     return this.getHabitCompletion(userId, 'month');
   }
@@ -231,14 +227,6 @@ export class StatisticsService {
     return this.getStreak(userId, 'day');
   }
 
-  async getWeeklyStreak(userId: string) {
-    return this.getStreak(userId, 'week');
-  }
-
-  async getMonthlyStreak(userId: string) {
-    return this.getStreak(userId, 'month');
-  }
-
   async syncUserStreak(userId: string) {
     const { currentStreak, bestStreak } = await this.getDailyStreak(userId);
 
@@ -249,43 +237,6 @@ export class StatisticsService {
         mejorRacha: bestStreak,
       },
     );
-  }
-
-  async getOverview(userId: string) {
-    const [
-      dailyCompletion,
-      weeklyCompletion,
-      monthlyCompletion,
-
-      dailyStreak,
-      weeklyStreak,
-      monthlyStreak,
-    ] = await Promise.all([
-      this.getDailyCompletion(userId),
-      this.getWeeklyCompletion(userId),
-      this.getMonthlyCompletion(userId),
-
-      this.getDailyStreak(userId),
-      this.getWeeklyStreak(userId),
-      this.getMonthlyStreak(userId),
-    ]);
-
-    return {
-      daily: {
-        habits: dailyCompletion,
-        streak: dailyStreak,
-      },
-
-      weekly: {
-        habits: weeklyCompletion,
-        streak: weeklyStreak,
-      },
-
-      monthly: {
-        habits: monthlyCompletion,
-        streak: monthlyStreak,
-      },
-    };
   }
 
   async getMonthlyProgress(userId: string) {

@@ -20,6 +20,7 @@ import type { Habit } from "../../forms/HabitForm";
 import type { RecordForm } from "../../forms/RecordForm";
 import CompleteList from "../components/dashboard/CompleteList";
 import { ProgresoDeHoy } from "../components/dashboard/cards";
+import { apiFetch } from "../../lib/API";
 
 export async function loadDashboard() {
   const [habits, records] = await Promise.all([getHabits(), getRecords()]);
@@ -29,6 +30,22 @@ export async function loadDashboard() {
     records,
   };
 }
+
+const completeHabit = async (
+  habitId: string,
+  amount: number,
+  date: Date,
+): Promise<RecordForm> => {
+  const response = await apiFetch(`/records/${habitId}/complete`, {
+    method: "POST",
+    body: JSON.stringify({
+      amount,
+      date,
+    }),
+  });
+
+  return response;
+};
 
 export default function Dashboard() {
   const router = useRouter();
@@ -181,7 +198,13 @@ export default function Dashboard() {
           }}
         >
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <ActiveList habits={habits} records={records} />
+            <ActiveList
+              habits={habits}
+              records={records}
+              selectedDate={new Date()}
+              onRefresh={refreshDashboard}
+              onComplete={completeHabit}
+            />{" "}
           </Box>
 
           <Box sx={{ flex: 1, minWidth: 0 }}>

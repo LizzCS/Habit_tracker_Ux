@@ -217,27 +217,6 @@ La aplicación quedará disponible en `http://localhost:3000` y la API en `http:
 
 ---
 
-## Variables de entorno
-
-### Backend (`backend/.env`)
-
-```env
-PORT=3001
-MONGODB_URI=mongodb://localhost:27017/habit-tracker
-JWT_SECRET=cambia-este-secreto
-JWT_EXPIRES_IN=1d
-```
-
-### Frontend (`frontend/.env.local`)
-
-```env
-NEXT_PUBLIC_API_URL=http://localhost:3001
-```
-
-> No subas archivos `.env` al repositorio. Incluye un `.env.example` con las variables sin valores sensibles.
-
----
-
 ## Diseño y experiencia de usuario
 
 - Tema personalizado de Material UI
@@ -249,20 +228,3 @@ NEXT_PUBLIC_API_URL=http://localhost:3001
 - Mensajes de éxito y error
 - Validación de formularios
 - Accesibilidad básica
-
----
-
-## Entregas
-
-| Entrega | Semana | Contenido                                                                                                                                        |
-| ------- | ------ | ------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1       | 4      | Investigación UX (persona, journey, benchmark), sistema de diseño, wireframes, documento preliminar de API y repositorio inicial                 |
-| 2       | 7      | Producto funcional: autenticación JWT, CRUD de hábitos, dashboard básico e integración completa frontend–backend (sin datos simulados)           |
-| 3       | 10     | Proyecto final: dashboard completo con gráficas, seguimiento diario/semanal/mensual, rachas, mejoras de usabilidad, documentación y presentación |
-
----
-
-## Autor
-
-**Tu nombre** · Proyecto individual  
-Curso: Experiencia de Usuario
