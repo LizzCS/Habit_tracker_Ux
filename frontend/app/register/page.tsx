@@ -43,7 +43,7 @@ export default function Register() {
     setLoading(true);
 
     try {
-      registerUser(name, email, password);
+      await registerUser(name, email, password);
       router.push("/login");
     } catch (err) {
       setError(err instanceof Error ? err.message : "Error al registrarse");

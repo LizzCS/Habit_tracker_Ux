@@ -7,6 +7,8 @@ import {
   IsString,
 } from 'class-validator';
 
+import { HabitFrequency, HabitPriority } from '../schemas/habit.schema';
+
 export class CreateHabitDto {
   @IsString()
   @IsNotEmpty()
@@ -20,14 +22,14 @@ export class CreateHabitDto {
   @IsNotEmpty()
   category!: string;
 
-  @IsEnum(['diaria', 'semanal', 'mensual'])
-  frequency!: string;
+  @IsEnum(HabitFrequency)
+  frequency!: HabitFrequency;
 
   @IsNumber()
   repeticiones!: number;
 
-  @IsEnum(['baja', 'media', 'alta'])
-  priority!: string;
+  @IsEnum(HabitPriority)
+  priority!: HabitPriority;
 
   @IsDateString()
   startDate!: string;

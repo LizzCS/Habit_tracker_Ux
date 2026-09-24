@@ -8,11 +8,12 @@ export const registerSchema = z
       .nonempty("El correo electrónico es obligatorio"),
     password: z
       .string()
-      .min(6, "La contraseña debe tener al menos 6 caracteres"),
-    /*.regex(
+      .min(6, "La contraseña debe tener al menos 6 caracteres")
+      .regex(
         /^(?=.*[a-z])(?=.*[A-Z])(?=.*\d)/,
         "La contraseña debe contener al menos una letra mayúscula, una letra minúscula y un número",
-      )*/ name: z
+      ),
+    name: z
       .string()
       .min(1, "El nombre es obligatorio")
       .regex(

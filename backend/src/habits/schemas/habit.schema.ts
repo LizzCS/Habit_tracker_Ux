@@ -3,6 +3,18 @@ import { HydratedDocument, Types } from 'mongoose';
 
 export type HabitDocument = HydratedDocument<Habit>;
 
+export enum HabitFrequency {
+  DIARIA = 'diaria',
+  SEMANAL = 'semanal',
+  MENSUAL = 'mensual',
+}
+
+export enum HabitPriority {
+  BAJA = 'baja',
+  MEDIA = 'media',
+  ALTA = 'alta',
+}
+
 @Schema({ timestamps: true })
 export class Habit {
   @Prop({ required: true })
@@ -16,7 +28,7 @@ export class Habit {
 
   @Prop({
     required: true,
-    enum: ['diaria', 'semanal', 'mensual'],
+    enum: HabitFrequency,
   })
   frequency!: string;
 
@@ -25,7 +37,7 @@ export class Habit {
 
   @Prop({
     required: true,
-    enum: ['baja', 'media', 'alta'],
+    enum: HabitPriority,
   })
   priority!: string;
 
