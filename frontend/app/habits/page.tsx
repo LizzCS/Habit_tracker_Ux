@@ -341,33 +341,11 @@ export default function Habits() {
                     fontWeight: 600,
                     color: "#374151",
                     mb: 1,
+                    textAlign: "center",
                   }}
                 >
-                  No hay hábitos para este día
+                  No tiene hábitos para este día
                 </Typography>
-
-                <Typography
-                  sx={{
-                    color: "#9ca3af",
-                    fontSize: "14px",
-                    mb: 3,
-                  }}
-                >
-                  Crea un hábito para comenzar.
-                </Typography>
-
-                <Button
-                  variant="outlined"
-                  startIcon={<Add />}
-                  onClick={handleOpenCreate}
-                  sx={{
-                    color: "#1B8585",
-                    borderColor: "#1B8585",
-                    textTransform: "none",
-                  }}
-                >
-                  Crear hábito
-                </Button>
               </CardContent>
             </Card>
           ) : (
