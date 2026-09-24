@@ -38,5 +38,10 @@ export const loginSchema = z.object({
 
 export const habitSchema = z.object({
   name: z.string().min(1, "El nombre del hábito es obligatorio"),
-  repeticiones: z.number().min(1, "El número de repeticiones es obligatorio"),
+
+  category: z.string().min(1, "La categoría es obligatoria"),
+
+  repeticiones: z.coerce
+    .number()
+    .min(1, "El número de repeticiones debe ser al menos 1"),
 });

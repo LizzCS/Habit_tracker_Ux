@@ -42,7 +42,8 @@ export default function HabitList({
   onDelete,
   onComplete,
 }: HabitListProps) {
-  const [sortBy, setSortBy] = React.useState("priority");
+  // Prioridad que se muestra primero: "alta" | "media" | "baja"
+  const [sortBy, setSortBy] = React.useState("alta");
   const [amounts, setAmounts] = React.useState<Record<string, number>>({});
 
   const priorityOrder: Record<string, number> = {
@@ -50,6 +51,14 @@ export default function HabitList({
     media: 2,
     baja: 3,
   };
+
+  // Colores por prioridad: alta → rojo, media → amarillo, baja → verde
+  const priorityColors: Record<string, { bg: string; color: string }> = {
+    alta: { bg: "#fee2e2", color: "#b91c1c" }, // rojo
+    media: { bg: "#fef9c3", color: "#a16207" }, // amarillo
+    baja: { bg: "#dcfce7", color: "#15803d" }, // verde
+  };
+
   // Diario
   const getStartOfPeriod = (frequency: string) => {
     const date = new Date(selectedDate);
@@ -97,17 +106,13 @@ export default function HabitList({
       }, 0);
   };
 
-  const sortedHabits = [...habits].sort((a, b) => {
-    if (sortBy === "priority") {
-      return priorityOrder[a.priority] - priorityOrder[b.priority];
-    }
+  // La prioridad elegida va primero; el resto sigue el orden alta → media → baja
+  const getRank = (priority: string) =>
+    priority === sortBy ? 0 : priorityOrder[priority];
 
-    if (sortBy === "name") {
-      return a.name.localeCompare(b.name);
-    }
-
-    return 0;
-  });
+  const sortedHabits = [...habits].sort(
+    (a, b) => getRank(a.priority) - getRank(b.priority),
+  );
 
   const handleAmountChange = (habitId: string, value: string) => {
     const number = Number(value);
@@ -165,19 +170,19 @@ export default function HabitList({
           width: 200,
         }}
       >
-        <InputLabel id="sort-label">Ordenar por</InputLabel>
+        <InputLabel id="sort-label">Ordenar por prioridad</InputLabel>
 
         <Select
           labelId="sort-label"
           value={sortBy}
-          label="Ordenar por"
+          label="Ordenar por prioridad"
           onChange={(e) => setSortBy(e.target.value)}
         >
-          <MenuItem value="priority">Prioridad</MenuItem>
+          <MenuItem value="alta">Alta</MenuItem>
 
-          <MenuItem value="name">Nombre</MenuItem>
+          <MenuItem value="media">Media</MenuItem>
 
-          <MenuItem value="none">Sin ordenar</MenuItem>
+          <MenuItem value="baja">Baja</MenuItem>
         </Select>
       </FormControl>
 
@@ -194,8 +199,6 @@ export default function HabitList({
           <Card
             key={habit._id}
             sx={{
-              borderRadius: "14px",
-              border: "1px solid #e5e7eb",
               background: completed ? "#32d4755a" : "#ffff",
               boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
               transition: "all 0.2s ease",
@@ -274,6 +277,9 @@ export default function HabitList({
                     size="small"
                     sx={{
                       fontSize: "11px",
+                      fontWeight: 600,
+                      backgroundColor: priorityColors[habit.priority]?.bg,
+                      color: priorityColors[habit.priority]?.color,
                     }}
                   />
                 </Box>

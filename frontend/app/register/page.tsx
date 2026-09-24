@@ -60,7 +60,6 @@ export default function Register() {
         display: "flex",
       }}
     >
-      {/* LEFT SIDE */}
       <Box
         sx={{
           width: "50%",
@@ -71,7 +70,6 @@ export default function Register() {
         }}
       >
         <Box sx={{ width: "100%", maxWidth: "400px" }}>
-          {/* TITLE */}
           <Typography
             component="h1"
             sx={{
@@ -92,10 +90,8 @@ export default function Register() {
             }}
           />
 
-          {/* FORM */}
           <form onSubmit={handleRegister}>
             <Stack spacing={2}>
-              {/* NAME */}
               <TextField
                 id="nombre"
                 label="Name"
@@ -105,7 +101,6 @@ export default function Register() {
                 onChange={(e) => setName(e.target.value)}
               />
 
-              {/* EMAIL */}
               <TextField
                 id="email"
                 label="Email"
@@ -116,7 +111,6 @@ export default function Register() {
                 onChange={(e) => setEmail(e.target.value)}
               />
 
-              {/* PASSWORD */}
               <TextField
                 id="password"
                 label="Password"
@@ -127,7 +121,6 @@ export default function Register() {
                 onChange={(e) => setPassword(e.target.value)}
               />
 
-              {/* CONFIRM PASSWORD */}
               <TextField
                 id="confirmPassword"
                 label="Confirm Password"
@@ -139,7 +132,6 @@ export default function Register() {
               />
             </Stack>
 
-            {/* ERROR */}
             {error && (
               <Typography
                 sx={{
@@ -161,9 +153,7 @@ export default function Register() {
               }}
             />
 
-            {/* BUTTONS */}
             <Stack direction="row" spacing={2}>
-              {/* CANCEL */}
               <Button
                 className="notWantButton"
                 variant="outlined"
@@ -174,7 +164,6 @@ export default function Register() {
                 Cancel
               </Button>
 
-              {/* SIGN UP */}
               <Button
                 className="wantButton"
                 variant="contained"
@@ -189,7 +178,6 @@ export default function Register() {
         </Box>
       </Box>
 
-      {/* RIGHT SIDE */}
       <Box
         sx={{
           width: "50%",

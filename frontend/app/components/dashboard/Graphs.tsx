@@ -18,9 +18,10 @@ type Record = {
 
 type Props = {
   habits: Habit[];
+  refreshKey?: number;
 };
 
-export function Charts({ habits }: Props) {
+export function Charts({ habits, refreshKey = 0 }: Props) {
   const [records, setRecords] = useState<Record[]>([]);
 
   useEffect(() => {

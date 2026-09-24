@@ -6,14 +6,19 @@ import Box from "@mui/material/Box";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
-import LinearProgress from "@mui/material/LinearProgress";
 import Typography from "@mui/material/Typography";
 
 import { getMonthlyProgress } from "../../../services/statistics.services";
 
+type DailyTrend = {
+  day: number;
+  completed: number;
+};
+
 type MonthlyProgress = {
   totalCompleted: number;
   totalAmount: number;
+  trend: DailyTrend[];
 };
 
 type ProgresoMensualProps = {
@@ -33,22 +38,16 @@ const cardSx = {
 
 export default function ProgresoMensual({ month }: ProgresoMensualProps) {
   const [monthly, setMonthly] = useState<MonthlyProgress | null>(null);
+
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    console.log(">>> PROGRESO MENSUAL MOUNTED");
-
     async function loadProgress() {
-      console.log(">>> ABOUT TO CALL MONTHLY");
-
       try {
         const data = await getMonthlyProgress();
-
-        console.log(">>> GOT MONTHLY:", data);
-
         setMonthly(data);
       } catch (error) {
-        console.error(">>> MONTHLY ERROR:", error);
+        console.error("Error al cargar progreso mensual:", error);
       } finally {
         setLoading(false);
       }
@@ -59,6 +58,7 @@ export default function ProgresoMensual({ month }: ProgresoMensualProps) {
 
   const totalCompleted = monthly?.totalCompleted ?? 0;
   const totalAmount = monthly?.totalAmount ?? 0;
+  const trend = monthly?.trend ?? [];
 
   const monthLabel =
     month?.label ??
@@ -66,15 +66,7 @@ export default function ProgresoMensual({ month }: ProgresoMensualProps) {
       month: "long",
     });
 
-  /*
-   * Progress based on repetitions.
-   *
-   * Since we are not calculating an expected goal,
-   * the bar represents the amount of activity completed.
-   *
-   * For now, 100 repetitions = 100%.
-   */
-  const progress = Math.min(totalAmount, 100);
+  const maxCompleted = Math.max(...trend.map((item) => item.completed), 1);
 
   if (loading) {
     return (
@@ -93,11 +85,11 @@ export default function ProgresoMensual({ month }: ProgresoMensualProps) {
         action={
           <Typography
             variant="body2"
-            color="primary.dark"
             sx={{
               mt: 0.5,
               mr: 1,
-              fontWeight: 500,
+              color: "#146e6e",
+              fontWeight: 600,
               textTransform: "capitalize",
             }}
           >
@@ -107,8 +99,11 @@ export default function ProgresoMensual({ month }: ProgresoMensualProps) {
         slotProps={{
           title: {
             variant: "h6",
-            color: "primary.dark",
-            fontWeight: 600,
+            sx: {
+              color: "#146e6e",
+              fontWeight: 600,
+              textTransform: "capitalize",
+            },
           },
         }}
         sx={{
@@ -118,47 +113,142 @@ export default function ProgresoMensual({ month }: ProgresoMensualProps) {
       />
 
       <CardContent sx={{ p: 3 }}>
-        <Box>
-          <Box
-            sx={{
-              display: "flex",
-              justifyContent: "space-between",
-              mb: 1,
-            }}
-          >
+        {/* Resumen */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            gap: 2,
+            mb: 3,
+          }}
+        >
+          <Box>
             <Typography variant="body2" color="text.secondary">
               Actividades completadas
             </Typography>
 
-            <Typography variant="body2" color="primary.dark">
-              {totalAmount}
+            <Typography
+              variant="h5"
+              sx={{
+                color: "#146e6e",
+                fontWeight: 700,
+              }}
+            >
+              {totalCompleted}
             </Typography>
           </Box>
 
-          <LinearProgress
-            variant="determinate"
-            value={progress}
+          <Box sx={{ textAlign: "right" }}>
+            <Typography variant="body2" color="text.secondary">
+              Repeticiones realizadas
+            </Typography>
+
+            <Typography
+              variant="h5"
+              sx={{
+                color: "#146e6e",
+                fontWeight: 700,
+              }}
+            >
+              {totalAmount}
+            </Typography>
+          </Box>
+        </Box>
+
+        {/* Gráfica */}
+        <Box>
+          <Box
             sx={{
-              height: 12,
-              borderRadius: 6,
-              bgcolor: TEAL_SOFT,
-              "& .MuiLinearProgress-bar": {
-                bgcolor: TEAL,
-                borderRadius: 6,
-              },
+              display: "flex",
+              alignItems: "flex-end",
+              gap: 0.5,
+              height: 180,
+              width: "100%",
+              borderBottom: "1px solid",
+              borderColor: "divider",
+              pb: 1,
             }}
-          />
+          >
+            {trend.map((item) => {
+              const height =
+                item.completed === 0
+                  ? 3
+                  : Math.max((item.completed / maxCompleted) * 130, 8);
+
+              return (
+                <Box
+                  key={item.day}
+                  sx={{
+                    flex: 1,
+                    minWidth: 0,
+                    height: "100%",
+                    display: "flex",
+                    flexDirection: "column",
+                    justifyContent: "flex-end",
+                    alignItems: "center",
+                  }}
+                >
+                  {/* Número */}
+                  {item.completed > 0 && (
+                    <Typography
+                      variant="caption"
+                      sx={{
+                        fontSize: {
+                          xs: "8px",
+                          sm: "10px",
+                        },
+                        color: "#146e6e",
+                        fontWeight: 600,
+                        mb: 0.5,
+                      }}
+                    >
+                      {item.completed}
+                    </Typography>
+                  )}
+
+                  {/* Barra */}
+                  <Box
+                    sx={{
+                      width: "70%",
+                      maxWidth: 24,
+                      minWidth: 4,
+                      height: `${height}px`,
+                      borderRadius: "4px 4px 1px 1px",
+                      bgcolor: item.completed > 0 ? TEAL : TEAL_SOFT,
+                      transition: "height 0.3s ease",
+                    }}
+                    title={`Día ${item.day}: ${item.completed} repeticiones`}
+                  />
+
+                  {/* Día */}
+                  <Typography
+                    variant="caption"
+                    sx={{
+                      fontSize: {
+                        xs: "8px",
+                        sm: "10px",
+                      },
+                      color: "text.secondary",
+                      mt: 0.5,
+                    }}
+                  >
+                    {item.day}
+                  </Typography>
+                </Box>
+              );
+            })}
+          </Box>
 
           <Typography
             variant="caption"
             color="text.secondary"
             sx={{
               display: "block",
-              mt: 1,
+              mt: 1.5,
+              textAlign: "center",
             }}
           >
-            {totalCompleted} actividades completadas · {totalAmount}{" "}
-            repeticiones realizadas
+            Días del mes
           </Typography>
         </Box>
       </CardContent>

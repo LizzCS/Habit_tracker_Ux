@@ -148,17 +148,43 @@ export class StatisticsService {
     return this.getHabitCompletion(userId, 'month');
   }
 
+  /**
+   * Racha (streak) = consecutive days with activity, ending today.
+   *
+   * - A day counts if the user logged at least one record that day
+   *   (partial progress counts; it doesn't have to finish a habit).
+   * - Miss a day and currentStreak goes back to 0. Older days are never
+   *   added back, because the count only walks backwards until the first gap.
+   * - Today doesn't break the racha until the day is over: if you haven't
+   *   logged today yet, the count continues from yesterday.
+   * - bestStreak is the all-time record and does not reset.
+   */
+  /**
+   * Racha = consecutive days with activity, ending today.
+   * currentStreak goes back to 0 as soon as a full day passes with no activity.
+   * bestStreak is the all-time record and never resets.
+   */
   async getStreak(userId: string, period: Period) {
-    const records = await this.recordModel.find({
-      userId: new Types.ObjectId(userId),
-      completed: true,
-    });
+    const now = new Date();
+
+    // Honduras = UTC-6
+    // Shift the current time back 6 hours ONLY to determine
+    // which calendar day it is in Honduras.
+    const localNow = new Date(now.getTime() - 6 * 60 * 60 * 1000);
+
+    // Get the calendar start based on Honduras date
+    const currentStart = this.periodStart(localNow, period);
+
+    const end = this.shift(currentStart, period, 1);
 
     const buckets: { _id: Date }[] = await this.recordModel.aggregate([
       {
         $match: {
-          userId: userId,
+          userId: {
+            $in: [userId, new Types.ObjectId(userId)],
+          },
           completed: true,
+          date: { $lt: end },
         },
       },
       {
@@ -175,32 +201,22 @@ export class StatisticsService {
       },
     ]);
 
-    const allRecords = await this.recordModel.find({}).lean();
-
-    console.log('ALL RECORDS:', allRecords);
-
-    if (allRecords.length > 0) {
-    }
-
     const set = new Set(buckets.map((bucket) => bucket._id.getTime()));
-
-    const current = this.periodStart(new Date(), period);
-
-    let cursor = set.has(current.getTime())
-      ? current
-      : this.shift(current, period, -1);
 
     let currentStreak = 0;
 
-    while (set.has(cursor.getTime())) {
-      currentStreak++;
+    if (set.has(currentStart.getTime())) {
+      let cursor = currentStart;
 
-      cursor = this.shift(cursor, period, -1);
+      while (set.has(cursor.getTime())) {
+        currentStreak++;
+        cursor = this.shift(cursor, period, -1);
+      }
     }
 
     const sorted = [...set].sort((a, b) => a - b);
 
-    let best = 0;
+    let bestStreak = 0;
     let run = 0;
     let last: number | null = null;
 
@@ -210,33 +226,30 @@ export class StatisticsService {
         this.shift(new Date(time), period, -1).getTime() === last;
 
       run = isNext ? run + 1 : 1;
-
-      best = Math.max(best, run);
+      bestStreak = Math.max(bestStreak, run);
 
       last = time;
     }
 
+    console.log('NOW:', now.toISOString());
+    console.log('LOCAL NOW:', localNow.toISOString());
+    console.log('CURRENT START:', currentStart.toISOString());
+    console.log('END:', end.toISOString());
+    console.log(
+      'BUCKETS:',
+      buckets.map((b) => b._id.toISOString()),
+    );
+    console.log('TODAY EXISTS:', set.has(currentStart.getTime()));
+
     return {
       period,
       currentStreak,
-      bestStreak: best,
+      bestStreak,
     };
   }
 
   async getDailyStreak(userId: string) {
     return this.getStreak(userId, 'day');
-  }
-
-  async syncUserStreak(userId: string) {
-    const { currentStreak, bestStreak } = await this.getDailyStreak(userId);
-
-    await this.userModel.updateOne(
-      { _id: userId },
-      {
-        racha: currentStreak,
-        mejorRacha: bestStreak,
-      },
-    );
   }
 
   async getMonthlyProgress(userId: string) {
@@ -280,23 +293,32 @@ export class StatisticsService {
       0,
     );
 
-    // Tendencia por día
-    const trendMap = new Map<string, number>();
+    // Agrupar cantidad completada por día
+    const trendMap = new Map<number, number>();
 
     for (const record of records) {
       const date = new Date(record.date);
-
-      const day = date.toISOString().split('T')[0];
+      const day = date.getDate();
 
       trendMap.set(day, (trendMap.get(day) ?? 0) + (record.amount ?? 1));
     }
 
-    const trend = Array.from(trendMap.entries())
-      .sort(([dateA], [dateB]) => dateA.localeCompare(dateB))
-      .map(([date, completed]) => ({
-        date,
-        completed,
-      }));
+    // Cantidad de días del mes actual
+    const daysInMonth = new Date(
+      now.getFullYear(),
+      now.getMonth() + 1,
+      0,
+    ).getDate();
+
+    // Crear todos los días, incluso los que tienen 0
+    const trend = Array.from({ length: daysInMonth }, (_, index) => {
+      const day = index + 1;
+
+      return {
+        day,
+        completed: trendMap.get(day) ?? 0,
+      };
+    });
 
     return {
       totalCompleted,

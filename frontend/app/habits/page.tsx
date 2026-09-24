@@ -382,9 +382,6 @@ export default function Habits() {
           )}
         </Box>
       </Box>
-
-      {/* CREATE / EDIT DIALOG */}
-
       <HabitDialog
         open={openDialog}
         mode={editingHabit ? "edit" : "create"}

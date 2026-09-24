@@ -16,24 +16,9 @@ export class StatisticsController {
     return this.statisticsService.getDailyStreak(req.user.sub);
   }
 
-  @Get('weekly-streak')
-  getWeeklyStreak(@Req() req: any) {
-    return this.statisticsService.getWeeklyStreak(req.user.sub);
-  }
-
-  @Get('monthly-streak')
-  getMonthlyStreak(@Req() req: any) {
-    return this.statisticsService.getMonthlyStreak(req.user.sub);
-  }
-
   @Get('daily-completion')
   getDailyCompletion(@Req() req: any) {
     return this.statisticsService.getDailyCompletion(req.user.sub);
-  }
-
-  @Get('weekly-completion')
-  getWeeklyCompletion(@Req() req: any) {
-    return this.statisticsService.getWeeklyCompletion(req.user.sub);
   }
 
   @Get('monthly-completion')

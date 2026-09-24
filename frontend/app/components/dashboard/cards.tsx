@@ -24,12 +24,14 @@ type Props = {
   mode?: "streaks" | "summary";
   habits?: Habit[];
   records?: RecordForm[];
+  refreshKey?: number;
 };
 
 export default function StreaksTitle({
   mode = "streaks",
   habits = [],
   records = [],
+  refreshKey = 0,
 }: Props) {
   const [daily, setDaily] = useState<Streak | null>(null);
   const [loading, setLoading] = useState(true);

@@ -55,6 +55,7 @@ export default function Dashboard() {
 
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [refreshKey, setRefreshKey] = useState(0);
 
   const refreshDashboard = async () => {
     try {
@@ -64,13 +65,8 @@ export default function Dashboard() {
 
       setHabits(data.habits);
       setRecords(data.records);
-    } catch (err) {
-      if (err instanceof Error) {
-        setError(err.message);
-      } else {
-        setError("No se pudieron cargar los datos dezl dashboard");
-      }
-    }
+      setRefreshKey((key) => key + 1);
+    } catch (err) {}
   };
 
   useEffect(() => {
@@ -161,15 +157,11 @@ export default function Dashboard() {
             Dashboard
           </Typography>
         </Box>
-        {/* ERROR */}
         {error && (
           <Alert severity="error" onClose={() => setError("")}>
             {error}
           </Alert>
         )}
-        {/* STREAKS */}
-        {/* STREAKS */}
-        {/* STREAKS + PROGRESO */}
         <Box
           sx={{
             display: "flex",
@@ -179,7 +171,7 @@ export default function Dashboard() {
           }}
         >
           <Box sx={{ flex: 1, minWidth: 0 }}>
-            <StreaksTittle />
+            <StreaksTittle refreshKey={refreshKey} />
           </Box>
 
           <Box sx={{ flex: 1, minWidth: 0 }}>
@@ -187,7 +179,6 @@ export default function Dashboard() {
           </Box>
         </Box>
 
-        {/* LISTAS */}
         <Box
           sx={{
             display: "flex",
@@ -214,7 +205,7 @@ export default function Dashboard() {
 
         {/* CHARTS */}
         <Box sx={{ mt: 2 }}>
-          <Charts habits={habits} />
+          <Charts habits={habits} refreshKey={refreshKey} />{" "}
         </Box>
       </Box>
     </Box>

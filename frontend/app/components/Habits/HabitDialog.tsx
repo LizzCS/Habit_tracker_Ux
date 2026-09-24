@@ -1,5 +1,7 @@
 "use client";
 
+import { useState } from "react";
+
 import {
   Box,
   Button,
@@ -14,8 +16,8 @@ import {
   Typography,
 } from "@mui/material";
 
-import { updateRecord } from "../../../services/records.services";
 import type { HabitForm } from "../../../forms/HabitForm";
+import { habitSchema } from "../../../lib/validaciones";
 
 type HabitDialogProps = {
   open: boolean;
@@ -25,6 +27,12 @@ type HabitDialogProps = {
   onChange: (field: keyof HabitForm, value: string | boolean) => void;
   onSave: () => void;
   onClose: () => void;
+};
+
+type HabitErrors = {
+  name?: string;
+  category?: string;
+  repeticiones?: string;
 };
 
 const nameRecommendations = [
@@ -55,8 +63,37 @@ export default function HabitDialog({
 }: HabitDialogProps) {
   const isEditing = mode === "edit";
 
+  const [errors, setErrors] = useState<HabitErrors>({});
+
+  const handleSave = () => {
+    const result = habitSchema.safeParse(form);
+
+    if (!result.success) {
+      const newErrors: HabitErrors = {};
+
+      result.error.issues.forEach((issue) => {
+        const field = issue.path[0] as keyof HabitErrors;
+
+        if (!newErrors[field]) {
+          newErrors[field] = issue.message;
+        }
+      });
+
+      setErrors(newErrors);
+      return;
+    }
+
+    setErrors({});
+    onSave();
+  };
+
+  const handleClose = () => {
+    setErrors({});
+    onClose();
+  };
+
   return (
-    <Dialog open={open} onClose={onClose} fullWidth maxWidth="sm">
+    <Dialog open={open} onClose={handleClose} fullWidth maxWidth="sm">
       <DialogTitle
         sx={{
           fontWeight: 700,
@@ -76,7 +113,6 @@ export default function HabitDialog({
           }}
         >
           {/* NOMBRE */}
-
           {!isEditing && (
             <Box>
               <Typography
@@ -121,10 +157,11 @@ export default function HabitDialog({
             onChange={(e) => onChange("name", e.target.value)}
             fullWidth
             required
+            error={!!errors.name}
+            helperText={errors.name}
           />
 
           {/* DESCRIPCIÓN */}
-
           <TextField
             label="Descripción"
             value={form.description}
@@ -135,12 +172,14 @@ export default function HabitDialog({
           />
 
           {/* CATEGORÍA */}
-
           <TextField
             label="Categoría"
             value={form.category}
             onChange={(e) => onChange("category", e.target.value)}
             fullWidth
+            required
+            error={!!errors.category}
+            helperText={errors.category}
           />
 
           {!isEditing && (
@@ -181,6 +220,7 @@ export default function HabitDialog({
             </Box>
           )}
 
+          {/* FRECUENCIA Y PRIORIDAD */}
           <Box
             sx={{
               display: "grid",
@@ -214,18 +254,23 @@ export default function HabitDialog({
             </TextField>
           </Box>
 
+          {/* REPETICIONES */}
           <TextField
             label="Cantidad de veces"
             type="number"
             value={form.repeticiones}
             onChange={(e) => onChange("repeticiones", e.target.value)}
             fullWidth
+            error={!!errors.repeticiones}
+            helperText={errors.repeticiones}
             slotProps={{
               htmlInput: {
                 min: 1,
               },
             }}
           />
+
+          {/* FECHAS */}
           <Box
             sx={{
               display: "grid",
@@ -269,7 +314,7 @@ export default function HabitDialog({
         }}
       >
         <Button
-          onClick={onClose}
+          onClick={handleClose}
           disabled={saving}
           sx={{
             color: "#6b7280",
@@ -281,7 +326,7 @@ export default function HabitDialog({
 
         <Button
           variant="contained"
-          onClick={onSave}
+          onClick={handleSave}
           disabled={saving}
           sx={{
             backgroundColor: "#1B8585",

@@ -5,13 +5,16 @@ import { useEffect, useState } from "react";
 import Card from "@mui/material/Card";
 import CardContent from "@mui/material/CardContent";
 import CardHeader from "@mui/material/CardHeader";
+import Typography from "@mui/material/Typography";
+import Box from "@mui/material/Box";
+
 import { LineChart } from "@mui/x-charts/LineChart";
 
 import { getMonthlyProgress } from "../../../services/statistics.services";
 
 type TrendPoint = {
-  label: string;
-  value: number;
+  day: number;
+  completed: number;
 };
 
 const cardSx = {
@@ -21,23 +24,19 @@ const cardSx = {
 };
 
 const TEAL_SOFT = "#e3f5f5";
+const TEAL = "#2bb3b3";
 
 export default function TendenciaCumplimiento() {
   const [points, setPoints] = useState<TrendPoint[]>([]);
+  const [totalAmount, setTotalAmount] = useState(0);
 
   useEffect(() => {
     async function loadTrend() {
       try {
         const data = await getMonthlyProgress();
 
-        const trend = data.trend.map(
-          (point: { date: string; completed: number }) => ({
-            label: point.date,
-            value: point.completed,
-          }),
-        );
-
-        setPoints(trend);
+        setPoints(data.trend);
+        setTotalAmount(data.totalAmount);
       } catch (error) {
         console.error("Error loading compliance trend:", error);
       }
@@ -57,44 +56,74 @@ export default function TendenciaCumplimiento() {
         slotProps={{
           title: {
             variant: "h6",
-            color: "primary.dark",
-            fontWeight: 600,
+            sx: {
+              color: "#146e6e",
+              fontWeight: 600,
+              textTransform: "capitalize",
+            },
           },
         }}
       />
-
       <CardContent sx={{ p: 3 }}>
-        <LineChart
-          xAxis={[
-            {
-              scaleType: "point",
-              data: points.map((point) => point.label),
-            },
-          ]}
-          yAxis={[
-            {
-              min: 0,
-            },
-          ]}
-          series={[
-            {
-              data: points.map((point) => point.value),
-              label: "Cumplimiento",
-              color: "#2bb3b3",
-              valueFormatter: (value) => `${value}`,
-            },
-          ]}
-          height={300}
-          grid={{
-            horizontal: true,
+        {/* Total */}
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "flex-end",
+            mb: 1,
           }}
-          margin={{
-            top: 10,
-            right: 10,
-            bottom: 30,
-            left: 45,
-          }}
-        />
+        >
+          <Typography variant="body2" color="text.secondary">
+            Total del mes:{" "}
+            <strong style={{ color: "#146e6e" }}>{totalAmount}</strong>{" "}
+            repeticiones
+          </Typography>
+        </Box>
+
+        {/* Gráfica */}
+        <Box sx={{ width: "100%" }}>
+          <LineChart
+            xAxis={[
+              {
+                scaleType: "point",
+                data: points.map((point) => point.day),
+                label: "Día del mes",
+              },
+            ]}
+            yAxis={[
+              {
+                min: 0,
+                label: "Repeticiones completadas",
+              },
+            ]}
+            series={[
+              {
+                data: points.map((point) => point.completed),
+                label: "Repeticiones",
+                color: TEAL,
+                valueFormatter: (value) => `${value} repeticiones`,
+              },
+            ]}
+            height={300}
+            grid={{
+              horizontal: true,
+            }}
+            margin={{
+              top: 20,
+              right: 20,
+              bottom: 55,
+              left: 70,
+            }}
+            slotProps={{
+              legend: {
+                direction: "horizontal",
+                position: {
+                  vertical: "bottom",
+                },
+              },
+            }}
+          />
+        </Box>
       </CardContent>
     </Card>
   );
