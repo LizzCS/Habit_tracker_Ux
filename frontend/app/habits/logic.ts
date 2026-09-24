@@ -39,7 +39,6 @@ export function useHabits() {
   const [form, setForm] = React.useState<HabitForm>(emptyForm);
   const [editingHabit, setEditingHabit] = React.useState<Habit | null>(null);
 
-  // Data
   const loadHabits = React.useCallback(async () => {
     try {
       setLoading(true);
@@ -58,7 +57,6 @@ export function useHabits() {
     }
   }, []);
 
-  // Authentication
   React.useEffect(() => {
     const token = sessionStorage.getItem("token");
 
@@ -70,7 +68,6 @@ export function useHabits() {
     loadHabits();
   }, [router, loadHabits]);
 
-  // Calendar
   const year = currentMonth.getFullYear();
   const month = currentMonth.getMonth();
 
@@ -98,7 +95,6 @@ export function useHabits() {
     setCurrentMonth(new Date(year, month + 1, 1));
   };
 
-  // Habits for selected date
   const selectedHabits = React.useMemo(() => {
     return habits.filter((habit) => {
       if (!habit.active) {
@@ -132,7 +128,6 @@ export function useHabits() {
     });
   }, [habits, selectedDate]);
 
-  // Form
   const handleChange = (field: keyof HabitForm, value: string | boolean) => {
     setForm((previous) => ({
       ...previous,
@@ -181,7 +176,6 @@ export function useHabits() {
     setForm(emptyForm);
   };
 
-  // Save
   const handleSave = async () => {
     if (!form.name.trim()) {
       setError("El nombre del hábito es obligatorio");
@@ -218,7 +212,6 @@ export function useHabits() {
     }
   };
 
-  // Delete
   const handleDelete = async (id: string) => {
     const confirmed = window.confirm("¿Quieres eliminar este hábito?");
 
@@ -238,7 +231,6 @@ export function useHabits() {
     }
   };
 
-  // Display values
   const monthName = currentMonth.toLocaleDateString("es-ES", {
     month: "long",
     year: "numeric",

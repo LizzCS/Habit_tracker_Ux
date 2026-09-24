@@ -148,31 +148,11 @@ export class StatisticsService {
     return this.getHabitCompletion(userId, 'month');
   }
 
-  /**
-   * Racha (streak) = consecutive days with activity, ending today.
-   *
-   * - A day counts if the user logged at least one record that day
-   *   (partial progress counts; it doesn't have to finish a habit).
-   * - Miss a day and currentStreak goes back to 0. Older days are never
-   *   added back, because the count only walks backwards until the first gap.
-   * - Today doesn't break the racha until the day is over: if you haven't
-   *   logged today yet, the count continues from yesterday.
-   * - bestStreak is the all-time record and does not reset.
-   */
-  /**
-   * Racha = consecutive days with activity, ending today.
-   * currentStreak goes back to 0 as soon as a full day passes with no activity.
-   * bestStreak is the all-time record and never resets.
-   */
   async getStreak(userId: string, period: Period) {
     const now = new Date();
 
-    // Honduras = UTC-6
-    // Shift the current time back 6 hours ONLY to determine
-    // which calendar day it is in Honduras.
     const localNow = new Date(now.getTime() - 6 * 60 * 60 * 1000);
 
-    // Get the calendar start based on Honduras date
     const currentStart = this.periodStart(localNow, period);
 
     const end = this.shift(currentStart, period, 1);
@@ -293,7 +273,6 @@ export class StatisticsService {
       0,
     );
 
-    // Agrupar cantidad completada por día
     const trendMap = new Map<number, number>();
 
     for (const record of records) {
@@ -303,14 +282,12 @@ export class StatisticsService {
       trendMap.set(day, (trendMap.get(day) ?? 0) + (record.amount ?? 1));
     }
 
-    // Cantidad de días del mes actual
     const daysInMonth = new Date(
       now.getFullYear(),
       now.getMonth() + 1,
       0,
     ).getDate();
 
-    // Crear todos los días, incluso los que tienen 0
     const trend = Array.from({ length: daysInMonth }, (_, index) => {
       const day = index + 1;
 
